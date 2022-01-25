@@ -398,7 +398,19 @@ export default function Calendar({
       calendarType,
       MONTH_LIST,
     };
-  }, []);
+  }, [
+    goNextMonth,
+    goPreviousMonth,
+    renderDay,
+    activeYear,
+    activeMonth,
+    locale,
+    goToDay,
+    displayFullEvent,
+    changeCalendarType,
+    calendarType,
+    MONTH_LIST,
+  ]);
 
   return (
     <CalendarContext.Provider value={contextValue}>
