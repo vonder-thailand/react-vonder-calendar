@@ -10,91 +10,6 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components";
 
-const Weekday = styled.ul`
-  margin: 0;
-  padding: 10px 0;
-  li {
-    display: inline-block;
-    width: 13.6%;
-    color: #666;
-    text-align: center;
-  }
-`;
-
-const Days = styled.ul`
-  padding: 10px 0;
-  margin: 0;
-`;
-
-const TodayText = styled.span<{ today?: boolean }>`
-  ${({ today }) => {
-    if (today) {
-      return css`
-        margin: 0 auto;
-        width: fit-content;
-        background: lightgray;
-        padding: 1rem 0.75rem;
-        border-radius: 6px;
-        font-weight: 600;
-        padding: 0.5rem;
-      `;
-    }
-  }}
-`;
-
-const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
-  height: 60px;
-  list-style-type: none;
-  display: inline-block;
-  width: 13.6%;
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 12px;
-  cursor: pointer;
-  color: ${({ isCurrentMonth }) => (isCurrentMonth ? "#777" : "lightgray")};
-`;
-
-const EventBadge = styled.div`
-  width: 10px;
-  height: 10px;
-  background: lightsalmon;
-  border-radius: 50%;
-  margin: 0 auto;
-  margin-top: 0.75rem;
-`;
-
-const EventTitle = styled.span<{
-  isEventStartDate?: boolean;
-  isEventEndDate?: boolean;
-}>`
-  width: 100%;
-  margin: 0 auto;
-  color: white;
-  margin-top: 0.25rem;
-  padding: 2px;
-  background: salmon;
-  ${({ isEventStartDate, isEventEndDate }) => {
-    if (isEventStartDate && isEventEndDate) {
-      return css`
-        border-radius: 6px;
-      `;
-    }
-
-    if (isEventStartDate) {
-      return css`
-        border-top-left-radius: 6px;
-        border-bottom-left-radius: 6px;
-      `;
-    }
-    if (isEventEndDate) {
-      return css`
-        border-top-right-radius: 6px;
-        border-bottom-right-radius: 6px;
-      `;
-    }
-  }}
-`;
-
 const EventLabel = styled.div`
   display: flex;
   justify-content: center;
@@ -568,3 +483,88 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     </>
   );
 });
+
+const Weekday = styled.ul`
+  margin: 0;
+  padding: 10px 0;
+  li {
+    display: inline-block;
+    width: 13.6%;
+    color: #666;
+    text-align: center;
+  }
+`;
+
+const Days = styled.ul`
+  padding: 10px 0;
+  margin: 0;
+`;
+
+const TodayText = styled.span<{ today?: boolean }>`
+  ${({ today }) => {
+    if (today) {
+      return css`
+        margin: 0 auto;
+        width: fit-content;
+        background: lightgray;
+        padding: 1rem 0.75rem;
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 0.5rem;
+      `;
+    }
+  }}
+`;
+
+const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
+  height: 60px;
+  list-style-type: none;
+  display: inline-block;
+  width: 13.6%;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 12px;
+  cursor: pointer;
+  color: ${({ isCurrentMonth }) => (isCurrentMonth ? "#777" : "lightgray")};
+`;
+
+const EventBadge = styled.div`
+  width: 10px;
+  height: 10px;
+  background: lightsalmon;
+  border-radius: 50%;
+  margin: 0 auto;
+  margin-top: 0.75rem;
+`;
+
+const EventTitle = styled.span<{
+  isEventStartDate?: boolean;
+  isEventEndDate?: boolean;
+}>`
+  width: 100%;
+  margin: 0 auto;
+  color: white;
+  margin-top: 0.25rem;
+  padding: 2px;
+  background: salmon;
+  ${({ isEventStartDate, isEventEndDate }) => {
+    if (isEventStartDate && isEventEndDate) {
+      return css`
+        border-radius: 6px;
+      `;
+    }
+
+    if (isEventStartDate) {
+      return css`
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+      `;
+    }
+    if (isEventEndDate) {
+      return css`
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+      `;
+    }
+  }}
+`;
