@@ -135,7 +135,21 @@ const DEFAULT_DATE = {
   month: new Date().getMonth(),
 };
 
-const CalendarContext = createContext<any>(null);
+type ContextProps = {
+  goNextMonth: () => void;
+  goPreviousMonth: () => void;
+  renderDay: RenderDayProps[];
+  activeYear: number;
+  activeMonth: number;
+  locale: "TH";
+  goToDay: () => void;
+  displayFullEvent?: boolean;
+  changeCalendarType: () => void;
+  calendarType: "month" | "week";
+  MONTH_LIST: typeof MONTH_LIST;
+};
+
+const CalendarContext = createContext<ContextProps | null>(null);
 
 function useCalendarContext() {
   const context = useContext(CalendarContext);
@@ -171,6 +185,50 @@ const MONTH_LIST = [
   },
 ];
 
+export type EventProps = {
+  id: number;
+  startDate: Date | string;
+  endDate: Date | string;
+  events: Array<{
+    title: string;
+  }>;
+};
+
+export type CalendarProps = {
+  children?: ReactNode;
+  currentDate?: any;
+  eventLists?: Array<EventProps>;
+  displayFullEvent?: boolean;
+  type?: "month" | "week";
+  locale?: "TH";
+};
+
+export type CalendarControlButtonProps = { children?: any };
+export type CalendarHeaderButtonProps = { children?: any };
+export type CalendarWeekDayProps = { children?: ReactNode };
+export type WeekDayItemProps = { children: ReactNode };
+export type DateEventProps = {
+  renderEvent?: ({ events }: { events: Array<Event> }) => void;
+};
+export type RenderDayProps = {
+  date: number;
+  prevMonth?: boolean;
+  currentMonth?: boolean;
+  fullDate: string | Date;
+  events: Events;
+};
+
+export type Events = {
+  id: number;
+  startDate: string;
+  endDate: string;
+  events: Event[];
+};
+
+export type Event = {
+  title: string;
+};
+
 export default function Calendar({
   children,
   currentDate,
@@ -178,17 +236,10 @@ export default function Calendar({
   displayFullEvent,
   type = "month",
   locale = "TH",
-}: {
-  children?: ReactNode;
-  currentDate?: any;
-  eventLists?: any[];
-  displayFullEvent?: boolean;
-  type?: "month" | "week";
-  locale?: "TH";
-}) {
+}: CalendarProps) {
   const [{ year: activeYear, month: activeMonth }, setActiveDate] =
     useState(DEFAULT_DATE);
-  const [calendarType, setType] = useState("month");
+  const [calendarType, setType] = useState<"month" | "week">("month");
 
   useEffect(() => {
     if (type) {
@@ -316,6 +367,7 @@ export default function Calendar({
         ),
       };
     });
+
     return calendarType === "week" ? days.slice(MAX_WEEK - 7, MAX_WEEK) : days;
   }, [
     activeMonth,
@@ -332,29 +384,31 @@ export default function Calendar({
     calendarType,
   ]);
 
+  const contextValue = useMemo(() => {
+    return {
+      goNextMonth,
+      goPreviousMonth,
+      renderDay,
+      activeYear,
+      activeMonth,
+      locale,
+      goToDay,
+      displayFullEvent,
+      changeCalendarType,
+      calendarType,
+      MONTH_LIST,
+    };
+  }, []);
+
   return (
-    <CalendarContext.Provider
-      value={{
-        goNextMonth,
-        goPreviousMonth,
-        renderDay,
-        activeYear,
-        activeMonth,
-        locale,
-        goToDay,
-        displayFullEvent,
-        changeCalendarType,
-        calendarType,
-        MONTH_LIST,
-      }}
-    >
+    <CalendarContext.Provider value={contextValue}>
       {children}
     </CalendarContext.Provider>
   );
 }
 
 export const CalendarControlButton = memo(
-  ({ children }: { children?: any }) => {
+  ({ children }: CalendarControlButtonProps) => {
     const {
       goNextMonth,
       goToDay,
@@ -403,18 +457,20 @@ export const CalendarControlButton = memo(
   }
 );
 
-export const CalendarHeader = memo(({ children }: { children?: any }) => {
-  const { activeYear, activeMonth, locale } = useCalendarContext();
-  const renderedEventChildren = children
-    ? children({ activeYear, activeMonth })
-    : null;
+export const CalendarHeader = memo(
+  ({ children }: CalendarHeaderButtonProps) => {
+    const { activeYear, activeMonth, locale } = useCalendarContext();
+    const renderedEventChildren = children
+      ? children({ activeYear, activeMonth })
+      : null;
 
-  return renderedEventChildren ? (
-    renderedEventChildren
-  ) : (
-    <h2>{new Date(activeYear, activeMonth).toLocaleDateString(locale)}</h2>
-  );
-});
+    return renderedEventChildren ? (
+      renderedEventChildren
+    ) : (
+      <h2>{new Date(activeYear, activeMonth).toLocaleDateString(locale)}</h2>
+    );
+  }
+);
 
 export const WeekDayList = () => {
   const { MONTH_LIST } = useCalendarContext();
@@ -427,7 +483,7 @@ export const WeekDayList = () => {
   );
 };
 
-export const CalendarWeekDay = ({ children }: { children?: ReactNode }) => {
+export const CalendarWeekDay = ({ children }: CalendarWeekDayProps) => {
   useCalendarContext();
   if (children) {
     return <Weekday>{children}</Weekday>;
@@ -438,20 +494,19 @@ export const CalendarWeekDay = ({ children }: { children?: ReactNode }) => {
   return null;
 };
 
-export const WeekDayItem = ({ children }: { children: ReactNode }) => {
+export const WeekDayItem = ({ children }: WeekDayItemProps) => {
   useCalendarContext();
   return <li>{children}</li>;
 };
 CalendarWeekDay.Item = WeekDayItem;
 CalendarWeekDay.displayName = "CalendarWeekDay";
 
-export const DateEvent = memo(({ renderEvent }: any) => {
+export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
   const { renderDay, displayFullEvent } = useCalendarContext();
   const renderDate = useMemo(() => {
     return renderDay.map(({ date, isToday, events, currentMonth }: any) => {
       const isEventStartDate = new Date(events?.startDate).getDate() === date;
       const isEventEndDate = new Date(events?.endDate).getDate() === date;
-
       return (
         <DayItem
           key={date + Math.random() * 2000}

@@ -1,46 +1,125 @@
-# Getting Started with Create React App
+## React Calendar with Compound Component Pattern
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Demo
 
-## Available Scripts
+- Typescript
 
-In the project directory, you can run:
+  [Codesandbox](https://codesandbox.io/s/my-calendar-ts-kefev?file=/src/App.tsx)
 
-### `npm start`
+- Javascript
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+  [Codesandbox](https://codesandbox.io/s/my-calendar-q5mf7?file=/src/App.js:11203-12272)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Basic Usage
 
-### `npm test`
+```js
+<Calendar
+  type={"month"}
+  displayFullEvent
+  eventLists={[
+    {
+      id: 1,
+      startDate: new Date(2021, 11, 30),
+      endDate: new Date(2022, 0, 2),
+      events: [
+        {
+          title: "Meeting",
+        },
+      ],
+    },
+  ]}
+>
+  <CalendarControlButton />
+  <CalendarHeader />
+  <CalendarWeekDay />
+  <DateEvent />
+</Calendar>
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Advance Usage
 
-### `npm run build`
+```js
+<Calendar
+  type={"month"}
+  displayFullEvent
+  eventLists={[
+    {
+      id: 1,
+      startDate: new Date(2021, 11, 30),
+      endDate: new Date(2022, 0, 2),
+      events: [
+        {
+          title: "Meeting",
+        },
+      ],
+    },
+    {
+      id: 2,
+      startDate: new Date(2022, 0, 7),
+      endDate: new Date(2022, 0, 10),
+      events: [
+        {
+          title: "Meeting 2",
+        },
+        {
+          title: "G Tower",
+        },
+      ],
+    },
+    {
+      id: 3,
+      startDate: new Date(2022, 0, 21),
+      endDate: new Date(2022, 0, 21),
+      events: [
+        {
+          title: "My Meeeet",
+        },
+      ],
+    },
+  ]}
+>
+  <CalendarControlButton>
+    {({ goNextMonth, goToDay }) => {
+      return (
+        <>
+          <button onClick={() => goNextMonth()}>
+            next month with render props
+          </button>
+          <button onClick={() => goToDay()}>go to day with render props</button>
+        </>
+      );
+    }}
+  </CalendarControlButton>
+  <CalendarHeader>
+    {({ activeYear, activeMonth }) => {
+      return (
+        <h2>
+          this is header - {activeYear.toString()} /{" "}
+          {activeMonth + 1?.toString()}
+        </h2>
+      );
+    }}
+  </CalendarHeader>
+  <CalendarWeekDay>
+    {MONTH_LIST?.map((item) => {
+      return <CalendarWeekDay.Item>{item?.name}</CalendarWeekDay.Item>;
+    })}
+  </CalendarWeekDay>
+  <DateEvent
+    renderEvent={({ events }) => {
+      return events?.map((event) => {
+        return <span key={Math.random() * 2022}>{event?.title}</span>;
+      });
+    }}
+  />
+</Calendar>
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Calendar Props
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Prop               | Description                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| `type`             | "month" or "week"                                                                         |
+| `displayFullEvent` | boolean default is false                                                                  |
+| `eventLists`       | Array of Events                                                                           |
+| `children`         | `<CalendarControlButton /> or <CalendarHeader /> or <CalendarWeekDay /> or <DateEvent />` |

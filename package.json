@@ -1,7 +1,8 @@
 {
   "name": "react-vonder-calendar",
-  "version": "1.0.21",
-  "description": "Learning how to create React modules using TypeScript!",
+  "version": "1.0.22",
+  "author": "minnyppp",
+  "description": "React Vonder Component with compound component pattern",
   "main": "./lib/cjs/components/Calendar.js",
   "module": "./lib/esm/components/Calendar.js",
   "types": "./lib/esm/index.d.ts",

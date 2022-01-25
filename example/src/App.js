@@ -21,7 +21,7 @@ function App() {
             endDate: new Date(2022, 0, 2),
             events: [
               {
-                title: "Meeting",
+                title: "My meeting",
               },
             ],
           },
