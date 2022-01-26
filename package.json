@@ -7,6 +7,13 @@
   "module": "./lib/esm/components/Calendar.js",
   "types": "./lib/esm/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vonder-thailand/react-vonder-calendar"
+  },
+  "bugs": {
+    "url": "https://github.com/vonder-thailand/react-vonder-calendar/issues"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "yarn build:esm && yarn build:cjs",
