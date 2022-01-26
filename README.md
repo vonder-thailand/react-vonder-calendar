@@ -2,13 +2,15 @@
 
 ### Demo
 
-- Typescript
+[Codesandbox](https://codesandbox.io/s/sharp-ride-40uuo?file=/src/App.js)
+
+<!-- - Typescript
 
   [Codesandbox](https://codesandbox.io/s/my-calendar-ts-kefev?file=/src/App.tsx)
 
 - Javascript
 
-  [Codesandbox](https://codesandbox.io/s/my-calendar-q5mf7?file=/src/App.js:11203-12272)
+  [Codesandbox](https://codesandbox.io/s/my-calendar-q5mf7?file=/src/App.js:11203-12272) -->
 
 ## Basic Usage
 
