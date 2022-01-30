@@ -20,20 +20,85 @@ const EventLabel = styled.div`
 
 const NUMBER_OF_WEEK = 7;
 
+export type Events = {
+  id?: number;
+  startDate?: string | Date;
+  endDate?: string | Date;
+  events?: Event[];
+};
+
+export type CalendarType = "month" | "week";
+
+export type CalendarProps = {
+  children?: ReactNode;
+  currentDate?: any;
+  eventLists?: Events[];
+  displayFullEvent?: boolean;
+  type?: CalendarType;
+  locale?: "TH";
+};
+
+export type CalendarControlButtonPropsChildrenProps = {
+  goNextMonth: () => void;
+  goToDay: () => void;
+  changeCalendarType: () => void;
+  calendarType: CalendarType;
+};
+
+export type CalendarControlButtonProps = {
+  children?: ({
+    goNextMonth,
+    goToDay,
+    changeCalendarType,
+    calendarType,
+  }: CalendarControlButtonPropsChildrenProps) => ReactNode;
+};
+
+// export type CalendarHeaderButtonPropsChildrenProps = {
+//   activeYear?: number;
+//   activeMonth?: number;
+// };
+
+export type CalendarHeaderButtonProps = {
+  // children?: ({
+  //   activeYear,
+  //   activeMonth,
+  // }: CalendarHeaderButtonPropsChildrenProps) => ReactNode;
+  children?: any;
+};
+export type CalendarWeekDayProps = { children?: ReactNode };
+export type WeekDayItemProps = { children: ReactNode };
+export type DateEventProps = {
+  renderEvent?: ({ events }: { events: Array<Event> }) => void;
+};
+export type RenderDayProps = {
+  date: number;
+  prevMonth?: boolean;
+  currentMonth?: boolean;
+  fullDate: string | Date;
+  events: Events;
+};
+export type Event = {
+  title: string;
+};
+
 function daysInMonth(month: number, year: number) {
   return new Date(year, month + 1, 0).getDate();
 }
 
-const getDateEvents = (events?: any[], currentDate?: any) => {
+const getDateEvents = (events?: Events[], currentDate?: any): Events => {
   // console.log("events : ", events);
   const todayDate = new Date(currentDate);
   const eventDate = events?.find(({ startDate, endDate }) => {
-    const firstDate = new Date(startDate);
-    const secondDate = new Date(endDate);
-    const isBetweenDate =
-      firstDate.getTime() <= todayDate.getTime() &&
-      todayDate.getTime() <= secondDate.getTime();
-    return isBetweenDate;
+    if (startDate && endDate) {
+      const firstDate = new Date(startDate);
+      const secondDate = new Date(endDate);
+      const isBetweenDate =
+        firstDate.getTime() <= todayDate.getTime() &&
+        todayDate.getTime() <= secondDate.getTime();
+      return isBetweenDate;
+    }
+    return false;
   });
 
   return {
@@ -99,50 +164,6 @@ const MONTH_LIST = [
     name: "Sa",
   },
 ];
-
-export type EventProps = {
-  id: number;
-  startDate: Date | string;
-  endDate: Date | string;
-  events: Array<{
-    title: string;
-  }>;
-};
-
-export type CalendarProps = {
-  children?: ReactNode;
-  currentDate?: any;
-  eventLists?: Array<EventProps>;
-  displayFullEvent?: boolean;
-  type?: "month" | "week";
-  locale?: "TH";
-};
-
-export type CalendarControlButtonProps = { children?: any };
-export type CalendarHeaderButtonProps = { children?: any };
-export type CalendarWeekDayProps = { children?: ReactNode };
-export type WeekDayItemProps = { children: ReactNode };
-export type DateEventProps = {
-  renderEvent?: ({ events }: { events: Array<Event> }) => void;
-};
-export type RenderDayProps = {
-  date: number;
-  prevMonth?: boolean;
-  currentMonth?: boolean;
-  fullDate: string | Date;
-  events: Events;
-};
-
-export type Events = {
-  id: number;
-  startDate: string;
-  endDate: string;
-  events: Event[];
-};
-
-export type Event = {
-  title: string;
-};
 
 export default function Calendar({
   children,
@@ -344,19 +365,15 @@ export const CalendarControlButton = memo(
       calendarType,
     } = useCalendarContext();
 
-    const renderedEventChildren = children
-      ? children({
-          goNextMonth: goNextMonth,
-          goToDay: goToDay,
-          changeCalendarType: changeCalendarType,
-          calendarType: calendarType,
-        })
-      : null;
-
     return (
       <>
-        {renderedEventChildren ? (
-          renderedEventChildren
+        {children ? (
+          children({
+            goNextMonth: goNextMonth,
+            goToDay: goToDay,
+            changeCalendarType: changeCalendarType,
+            calendarType: calendarType,
+          })
         ) : (
           <>
             <button onClick={() => changeCalendarType()}>
@@ -387,13 +404,10 @@ export const CalendarControlButton = memo(
 export const CalendarHeader = memo(
   ({ children }: CalendarHeaderButtonProps) => {
     const { activeYear, activeMonth, locale } = useCalendarContext();
-    const renderedEventChildren = children
-      ? children({ activeYear, activeMonth })
-      : null;
-
-    return renderedEventChildren ? (
-      renderedEventChildren
-    ) : (
+    if (children) {
+      return children({ activeYear: activeYear, activeMonth: activeMonth });
+    }
+    return (
       <h2>{new Date(activeYear, activeMonth).toLocaleDateString(locale)}</h2>
     );
   }
