@@ -54,17 +54,17 @@ export type CalendarControlButtonProps = {
   }: CalendarControlButtonPropsChildrenProps) => ReactNode;
 };
 
-// export type CalendarHeaderButtonPropsChildrenProps = {
-//   activeYear?: number;
-//   activeMonth?: number;
-// };
+export type CalendarHeaderButtonPropsChildrenProps = {
+  activeYear?: number;
+  activeMonth?: number;
+};
 
 export type CalendarHeaderButtonProps = {
-  // children?: ({
-  //   activeYear,
-  //   activeMonth,
-  // }: CalendarHeaderButtonPropsChildrenProps) => ReactNode;
-  children?: any;
+  children?: ({
+    activeYear,
+    activeMonth,
+  }: CalendarHeaderButtonPropsChildrenProps) => any;
+  // children?: any;
 };
 export type CalendarWeekDayProps = { children?: ReactNode };
 export type WeekDayItemProps = { children: ReactNode };
