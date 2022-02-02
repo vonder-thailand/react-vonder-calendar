@@ -6954,10 +6954,6 @@ react-scripts@5.0.0:
   optionalDependencies:
     fsevents "^2.3.2"
 
-"react-vonder-calendar@link:../lib/cjs/components/Calendar.js":
-  version "0.0.0"
-  uid ""
-
 react@^17.0.2:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react/-/react-17.0.2.tgz#d0b5cc516d29eb3eee383f75b62864cfb6800037"

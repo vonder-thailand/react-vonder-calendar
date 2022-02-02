@@ -467,8 +467,6 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
   //   new Date(activeYear, activeMonth, activeDate)
   // );
   const renderDate = useMemo(() => {
-    console.log("renderDay : ", renderDay);
-
     return renderDay.map(
       ({ date, isToday, events, currentMonth, fullDate }: any) => {
         const isEventStartDate = new Date(events?.startDate).getDate() === date;
