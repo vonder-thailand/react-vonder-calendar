@@ -10,14 +10,6 @@ import React, {
 } from "react";
 import styled, { css } from "styled-components";
 
-const EventLabel = styled.div`
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 0.5rem;
-`;
-
 const NUMBER_OF_WEEK = 7;
 
 export type Events = {
@@ -113,6 +105,7 @@ const getWeeksNumber = (todayDate: number, startDateOfMonth: number) => {
 const DEFAULT_DATE = {
   year: new Date().getFullYear(),
   month: new Date().getMonth(),
+  date: new Date().getDate(),
 };
 
 type ContextProps = {
@@ -121,12 +114,14 @@ type ContextProps = {
   renderDay: RenderDayProps[];
   activeYear: number;
   activeMonth: number;
+  activeDate: number;
   locale: "TH";
   goToDay: () => void;
   displayFullEvent?: boolean;
   changeCalendarType: () => void;
   calendarType: "month" | "week";
   MONTH_LIST: typeof MONTH_LIST;
+  setActiveDate: (date: typeof DEFAULT_DATE) => void;
 };
 
 const CalendarContext = createContext<ContextProps | null>(null);
@@ -173,8 +168,10 @@ export default function Calendar({
   type = "month",
   locale = "TH",
 }: CalendarProps) {
-  const [{ year: activeYear, month: activeMonth }, setActiveDate] =
-    useState(DEFAULT_DATE);
+  const [
+    { year: activeYear, month: activeMonth, date: activeDate },
+    setActiveDate,
+  ] = useState(DEFAULT_DATE);
   const [calendarType, setType] = useState<"month" | "week">("month");
 
   useEffect(() => {
@@ -186,6 +183,7 @@ export default function Calendar({
   useEffect(() => {
     if (currentDate) {
       setActiveDate({
+        date: new Date(currentDate).getDate(),
         year: new Date(currentDate).getFullYear(),
         month: new Date(currentDate).getMonth(),
       });
@@ -200,6 +198,7 @@ export default function Calendar({
     setActiveDate((prev) => {
       if (prev.month + 1 > 11) {
         return {
+          ...prev,
           month: 0,
           year: prev.year + 1,
         };
@@ -213,6 +212,7 @@ export default function Calendar({
     setActiveDate((prev) => {
       if (prev.month - 1 < 0) {
         return {
+          ...prev,
           month: 11,
           year: prev.year - 1,
         };
@@ -333,6 +333,8 @@ export default function Calendar({
       changeCalendarType,
       calendarType,
       MONTH_LIST,
+      setActiveDate,
+      activeDate,
     };
   }, [
     goNextMonth,
@@ -346,6 +348,7 @@ export default function Calendar({
     changeCalendarType,
     calendarType,
     MONTH_LIST,
+    activeDate,
   ]);
 
   return (
@@ -443,31 +446,44 @@ CalendarWeekDay.Item = WeekDayItem;
 CalendarWeekDay.displayName = "CalendarWeekDay";
 
 export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
-  const { renderDay, displayFullEvent } = useCalendarContext();
+  const {
+    renderDay,
+    displayFullEvent,
+    activeMonth,
+    activeYear,
+    setActiveDate,
+    activeDate,
+  } = useCalendarContext();
+
   const renderDate = useMemo(() => {
-    return renderDay.map(({ date, isToday, events, currentMonth }: any) => {
-      const isEventStartDate = new Date(events?.startDate).getDate() === date;
-      const isEventEndDate = new Date(events?.endDate).getDate() === date;
-      return (
-        <DayItem
-          key={date + Math.random() * 2000}
-          isCurrentMonth={currentMonth}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              flexDirection: "column",
+    return renderDay.map(
+      ({ date, isToday, events, currentMonth, fullDate }: any) => {
+        const isEventStartDate = new Date(events?.startDate).getDate() === date;
+        const isEventEndDate = new Date(events?.endDate).getDate() === date;
+
+        const isActiveDate =
+          new Date(activeYear, activeMonth, activeDate).getTime() ===
+          new Date(fullDate).getTime();
+
+        return (
+          <DayItem
+            onClick={() => {
+              setActiveDate({
+                year: new Date(fullDate).getFullYear(),
+                month: new Date(fullDate).getMonth(),
+                date: new Date(fullDate).getDate(),
+              });
             }}
+            key={date + Math.random() * 2000}
+            isCurrentMonth={currentMonth}
           >
-            <>
-              <TodayText today={isToday}>{date}</TodayText>
-              {/* {renderedDateEventChildren(events)} */}
+            <DayContainer today={isToday} isActiveDate={isActiveDate}>
+              <TodayText>{date}</TodayText>
 
               {renderEvent && renderEvent({ events: events?.events })}
               {!renderEvent && displayFullEvent && (
-                <EventLabel>
-                  {events?.events?.slice(0, 2)?.map((event: any) => {
+                <EventLabel today={isToday}>
+                  {events?.events?.map((event: any) => {
                     return (
                       <EventTitle
                         key={event?.title}
@@ -480,14 +496,24 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   })}
                 </EventLabel>
               )}
-            </>
 
-            {!displayFullEvent && events?.events?.length > 0 && <EventBadge />}
-          </div>
-        </DayItem>
-      );
-    });
-  }, [displayFullEvent, renderDay, renderEvent]);
+              {!displayFullEvent && events?.events?.length > 0 && (
+                <EventBadge isToday={isToday} />
+              )}
+            </DayContainer>
+          </DayItem>
+        );
+      }
+    );
+  }, [
+    displayFullEvent,
+    renderDay,
+    renderEvent,
+    setActiveDate,
+    activeDate,
+    activeMonth,
+    activeYear,
+  ]);
 
   return (
     <>
@@ -514,20 +540,50 @@ const Days = styled.ul`
   margin: 0;
 `;
 
-const TodayText = styled.span<{ today?: boolean }>`
+const EventLabel = styled.div<{ today?: boolean }>`
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 0.75rem;
   ${({ today }) => {
     if (today) {
       return css`
-        margin: 0 auto;
-        width: fit-content;
-        background: lightgray;
-        padding: 1rem 0.75rem;
-        border-radius: 6px;
-        font-weight: 600;
-        padding: 0.5rem;
+        margin-top: 0.25rem;
       `;
     }
   }}
+`;
+
+const TodayText = styled.span`
+  margin: 0 auto;
+  width: fit-content;
+`;
+
+const DayContainer = styled.div<{ today?: boolean; isActiveDate?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: 30px;
+  margin: 0 auto;
+  ${({ today, isActiveDate }) => {
+    if ((today && isActiveDate) || isActiveDate) {
+      return css`
+        background: #6565f2;
+        border-radius: 8px;
+        font-weight: 700;
+        padding: 0.5rem;
+        color: white;
+      `;
+    }
+    if (today) {
+      return css`
+        font-weight: 700;
+        padding: 0.5rem;
+        color: #f0685b;
+      `;
+    }
+  }};
 `;
 
 const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
@@ -536,19 +592,19 @@ const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
   display: inline-block;
   width: 13.6%;
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 12px;
+  /* margin-bottom: 30px; */
+  font-size: 14px;
   cursor: pointer;
   color: ${({ isCurrentMonth }) => (isCurrentMonth ? "#777" : "lightgray")};
 `;
 
-const EventBadge = styled.div`
-  width: 10px;
-  height: 10px;
-  background: lightsalmon;
+const EventBadge = styled.div<{ isToday?: boolean }>`
+  width: 5px;
+  height: 5px;
+  background: ${({ isToday }) => (isToday ? "white" : "#f0685b")};
   border-radius: 50%;
   margin: 0 auto;
-  margin-top: 0.75rem;
+  margin-top: 0.35rem;
 `;
 
 const EventTitle = styled.span<{
@@ -560,7 +616,7 @@ const EventTitle = styled.span<{
   color: white;
   margin-top: 0.25rem;
   padding: 2px;
-  background: salmon;
+  background: #f0685b;
   ${({ isEventStartDate, isEventEndDate }) => {
     if (isEventStartDate && isEventEndDate) {
       return css`

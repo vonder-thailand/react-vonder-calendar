@@ -12,12 +12,12 @@ function App() {
     <div className="App">
       <Calendar
         type={"month"}
-        displayFullEvent
+        displayFullEvent={false}
         eventLists={[
           {
             id: 1,
-            startDate: new Date(2021, 11, 30),
-            endDate: new Date(2022, 0, 2),
+            startDate: new Date(2021, 0, 30),
+            endDate: new Date(2022, 1, 2),
             events: [
               {
                 title: "Meeting",
