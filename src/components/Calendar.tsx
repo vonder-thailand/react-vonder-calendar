@@ -123,6 +123,8 @@ type ContextProps = {
   MONTH_LIST: typeof MONTH_LIST;
   setActiveDate: (date: typeof DEFAULT_DATE) => void;
   eventLists?: Events[];
+  goNextWeek: () => void;
+  goPreviousWeek: () => void;
 };
 
 const CalendarContext = createContext<ContextProps | null>(null);
@@ -261,6 +263,36 @@ export default function Calendar({
     // MAX_WEEK,
   } = getCurrentDate;
 
+  const goNextWeek = useCallback(() => {
+    setActiveDate((prev) => {
+      const isGoNextMonth = prev.date + 7 > MAX_DATE;
+      const formatDateNextMonth = prev.date + 7 - MAX_DATE;
+      const checkIsLastMonthOfYear = isGoNextMonth && prev.month + 1 > 11;
+      return {
+        ...prev,
+        date: isGoNextMonth ? formatDateNextMonth : prev.date + 7,
+        month: isGoNextMonth ? prev.month + 1 : prev.month,
+        year: checkIsLastMonthOfYear ? prev.year + 1 : prev.year,
+      };
+    });
+  }, [MAX_DATE]);
+
+  const goPreviousWeek = useCallback(() => {
+    setActiveDate((prev) => {
+      const IsGoPrevMonth = prev.date - 7 <= 0;
+      const formatDatePrevMonth = prev.date - 7 + MAX_DATE;
+      const checkLastMonthOfYear = prev.month === 0 ? 11 : prev.month - 1;
+      const checkLastYear = prev.month - 1 < 0 ? prev.year - 1 : prev.year;
+
+      return {
+        ...prev,
+        date: IsGoPrevMonth ? formatDatePrevMonth : prev.date - 7,
+        month: IsGoPrevMonth ? checkLastMonthOfYear : prev.month,
+        year: IsGoPrevMonth ? checkLastYear : prev.year,
+      };
+    });
+  }, [MAX_DATE]);
+
   const renderDay = useMemo(() => {
     const days = [...Array(MAX_COUNT_DATE).keys()].map((i) => {
       const currentDate = i - START_INDEX + 1;
@@ -271,10 +303,6 @@ export default function Calendar({
           prevMonth: true,
           currentMonth: false,
           fullDate: new Date(activeYear, activeMonth - 1, prevDate),
-          // events: getDateEvents(
-          //   eventLists,
-          //   new Date(activeYear, activeMonth, currentDate)
-          // ),
         };
       }
       if (currentDate > MAX_DATE) {
@@ -287,10 +315,6 @@ export default function Calendar({
             activeMonth === 11 ? 1 : activeMonth + 1,
             i - (MAX_DATE + START_INDEX) + 1
           ),
-          // events: getDateEvents(
-          //   eventLists,
-          //   new Date(activeYear, activeMonth, currentDate)
-          // ),
         };
       }
 
@@ -299,10 +323,6 @@ export default function Calendar({
         currentMonth: true,
         isToday: currentDate === TODAY,
         fullDate: new Date(activeYear, activeMonth, currentDate),
-        // events: getDateEvents(
-        //   eventLists,
-        //   new Date(activeYear, activeMonth, currentDate)
-        // ),
       };
     });
 
@@ -341,6 +361,8 @@ export default function Calendar({
       setActiveDate,
       activeDate,
       eventLists,
+      goNextWeek,
+      goPreviousWeek,
     };
   }, [
     goNextMonth,
@@ -355,6 +377,8 @@ export default function Calendar({
     calendarType,
     activeDate,
     eventLists,
+    goNextWeek,
+    goPreviousWeek,
   ]);
 
   return (
@@ -372,6 +396,8 @@ export const CalendarControlButton = memo(
       goPreviousMonth,
       changeCalendarType,
       calendarType,
+      goNextWeek,
+      goPreviousWeek,
     } = useCalendarContext();
 
     return (
@@ -403,6 +429,8 @@ export const CalendarControlButton = memo(
             >
               next month
             </button>
+            <button onClick={() => goNextWeek()}>go next week</button>
+            <button onClick={() => goPreviousWeek()}>go prev week</button>
           </>
         )}
       </>
@@ -683,7 +711,7 @@ const DayContainer = styled.div<{
 }>`
   display: flex;
   flex-direction: column;
-  min-height: 30px;
+  min-height: 40px;
   margin: 0 auto;
   ${getActiveDate};
 
