@@ -36,6 +36,9 @@ export type CalendarControlButtonPropsChildrenProps = {
   goToDay: () => void;
   changeCalendarType: () => void;
   calendarType: CalendarType;
+  goNextWeek: () => void;
+  goPreviousWeek: () => void;
+  goPreviousMonth: () => void;
 };
 
 export type CalendarControlButtonProps = {
@@ -78,25 +81,6 @@ export type Event = {
 function daysInMonth(month: number, year: number) {
   return new Date(year, month + 1, 0).getDate();
 }
-
-// const getDateEvents = (events?: Events[], currentDate?: any): Events => {
-//   // console.log("events : ", events);
-//   const todayDate = new Date(currentDate);
-//   const eventDate = events?.find(({ startDate, endDate }) => {
-//     if (startDate && endDate) {
-//       const firstDate = new Date(startDate);
-//       const secondDate = new Date(endDate);
-//       const isBetweenDate =
-//         firstDate.getTime() <= todayDate.getTime() &&
-//         todayDate.getTime() <= secondDate.getTime();
-//       return isBetweenDate;
-//     }
-//     return false;
-//   });
-//   return {
-//     ...eventDate,
-//   };
-// };
 
 const getWeeksNumber = (todayDate: number, startDateOfMonth: number) => {
   return Math.ceil((todayDate + startDateOfMonth) / NUMBER_OF_WEEK);
@@ -405,9 +389,12 @@ export const CalendarControlButton = memo(
         {children ? (
           children({
             goNextMonth: goNextMonth,
+            goPreviousMonth: goPreviousMonth,
             goToDay: goToDay,
             changeCalendarType: changeCalendarType,
             calendarType: calendarType,
+            goNextWeek: goNextWeek,
+            goPreviousWeek: goPreviousWeek,
           })
         ) : (
           <>
