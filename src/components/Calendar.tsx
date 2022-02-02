@@ -16,7 +16,8 @@ export type Events = {
   id?: number;
   startDate?: string | Date;
   endDate?: string | Date;
-  events?: Event[];
+  title?: string;
+  // events?: Event[];
 };
 
 export type CalendarType = "month" | "week";
@@ -61,14 +62,14 @@ export type CalendarHeaderButtonProps = {
 export type CalendarWeekDayProps = { children?: ReactNode };
 export type WeekDayItemProps = { children: ReactNode };
 export type DateEventProps = {
-  renderEvent?: ({ events }: { events: Array<Event> }) => void;
+  renderEvent?: ({ events }: { events?: Events[] }) => void;
 };
 export type RenderDayProps = {
   date: number;
   prevMonth?: boolean;
   currentMonth?: boolean;
   fullDate: string | Date;
-  events: Events;
+  // events: Events;
 };
 export type Event = {
   title: string;
@@ -78,25 +79,24 @@ function daysInMonth(month: number, year: number) {
   return new Date(year, month + 1, 0).getDate();
 }
 
-const getDateEvents = (events?: Events[], currentDate?: any): Events => {
-  // console.log("events : ", events);
-  const todayDate = new Date(currentDate);
-  const eventDate = events?.find(({ startDate, endDate }) => {
-    if (startDate && endDate) {
-      const firstDate = new Date(startDate);
-      const secondDate = new Date(endDate);
-      const isBetweenDate =
-        firstDate.getTime() <= todayDate.getTime() &&
-        todayDate.getTime() <= secondDate.getTime();
-      return isBetweenDate;
-    }
-    return false;
-  });
-
-  return {
-    ...eventDate,
-  };
-};
+// const getDateEvents = (events?: Events[], currentDate?: any): Events => {
+//   // console.log("events : ", events);
+//   const todayDate = new Date(currentDate);
+//   const eventDate = events?.find(({ startDate, endDate }) => {
+//     if (startDate && endDate) {
+//       const firstDate = new Date(startDate);
+//       const secondDate = new Date(endDate);
+//       const isBetweenDate =
+//         firstDate.getTime() <= todayDate.getTime() &&
+//         todayDate.getTime() <= secondDate.getTime();
+//       return isBetweenDate;
+//     }
+//     return false;
+//   });
+//   return {
+//     ...eventDate,
+//   };
+// };
 
 const getWeeksNumber = (todayDate: number, startDateOfMonth: number) => {
   return Math.ceil((todayDate + startDateOfMonth) / NUMBER_OF_WEEK);
@@ -122,6 +122,7 @@ type ContextProps = {
   calendarType: "month" | "week";
   MONTH_LIST: typeof MONTH_LIST;
   setActiveDate: (date: typeof DEFAULT_DATE) => void;
+  eventLists?: Events[];
 };
 
 const CalendarContext = createContext<ContextProps | null>(null);
@@ -270,10 +271,10 @@ export default function Calendar({
           prevMonth: true,
           currentMonth: false,
           fullDate: new Date(activeYear, activeMonth - 1, prevDate),
-          events: getDateEvents(
-            eventLists,
-            new Date(activeYear, activeMonth, currentDate)
-          ),
+          // events: getDateEvents(
+          //   eventLists,
+          //   new Date(activeYear, activeMonth, currentDate)
+          // ),
         };
       }
       if (currentDate > MAX_DATE) {
@@ -286,10 +287,10 @@ export default function Calendar({
             activeMonth === 11 ? 1 : activeMonth + 1,
             i - (MAX_DATE + START_INDEX) + 1
           ),
-          events: getDateEvents(
-            eventLists,
-            new Date(activeYear, activeMonth, currentDate)
-          ),
+          // events: getDateEvents(
+          //   eventLists,
+          //   new Date(activeYear, activeMonth, currentDate)
+          // ),
         };
       }
 
@@ -298,10 +299,10 @@ export default function Calendar({
         currentMonth: true,
         isToday: currentDate === TODAY,
         fullDate: new Date(activeYear, activeMonth, currentDate),
-        events: getDateEvents(
-          eventLists,
-          new Date(activeYear, activeMonth, currentDate)
-        ),
+        // events: getDateEvents(
+        //   eventLists,
+        //   new Date(activeYear, activeMonth, currentDate)
+        // ),
       };
     });
 
@@ -342,6 +343,7 @@ export default function Calendar({
       MONTH_LIST,
       setActiveDate,
       activeDate,
+      eventLists,
     };
   }, [
     goNextMonth,
@@ -356,6 +358,7 @@ export default function Calendar({
     calendarType,
     MONTH_LIST,
     activeDate,
+    eventLists,
   ]);
 
   return (
@@ -460,41 +463,77 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     activeYear,
     setActiveDate,
     activeDate,
+    eventLists,
   } = useCalendarContext();
+  // console.log("eventLists ; ", eventLists);
 
-  // console.log(
-  //   "new Date(activeYear, activeMonth, activeDate) : ",
-  //   new Date(activeYear, activeMonth, activeDate)
-  // );
   const renderDate = useMemo(() => {
-    return renderDay.map(
-      ({ date, isToday, events, currentMonth, fullDate }: any) => {
-        const isEventStartDate = new Date(events?.startDate).getDate() === date;
-        const isEventEndDate = new Date(events?.endDate).getDate() === date;
+    return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
+      const isActiveDate =
+        new Date(activeYear, activeMonth, activeDate).getTime() ===
+        new Date(fullDate).getTime();
 
-        const isActiveDate =
-          new Date(activeYear, activeMonth, activeDate).getTime() ===
-          new Date(fullDate).getTime();
-
-        return (
-          <DayItem
-            onClick={() => {
-              setActiveDate({
-                year: new Date(fullDate).getFullYear(),
-                month: new Date(fullDate).getMonth(),
-                date: new Date(fullDate).getDate(),
-              });
-            }}
-            key={date + Math.random() * 2000}
-            isCurrentMonth={currentMonth}
-          >
-            <DayContainer today={isToday} isActiveDate={isActiveDate}>
+      return (
+        <DayItem
+          onClick={() => {
+            setActiveDate({
+              year: new Date(fullDate).getFullYear(),
+              month: new Date(fullDate).getMonth(),
+              date: new Date(fullDate).getDate(),
+            });
+          }}
+          key={date + Math.random() * 2000}
+          isCurrentMonth={currentMonth}
+        >
+          {!displayFullEvent ? (
+            <DayContainer
+              today={isToday}
+              isActiveDate={isActiveDate}
+              displayFullEvent={displayFullEvent}
+            >
               <TodayText>{date}</TodayText>
+              {eventLists?.slice(0, 1)?.map((event: any) => {
+                const todayDate = new Date(fullDate);
 
-              {renderEvent && renderEvent({ events: events?.events })}
-              {!renderEvent && displayFullEvent && (
-                <EventLabel today={isToday}>
-                  {events?.events?.map((event: any) => {
+                const firstDate = new Date(event?.startDate);
+                const secondDate = new Date(event?.endDate);
+                const isBetweenDate =
+                  firstDate.getTime() <= todayDate.getTime() &&
+                  todayDate.getTime() <= secondDate.getTime();
+
+                if (isBetweenDate) {
+                  if (renderEvent) {
+                    return renderEvent({ events: event });
+                  }
+                  return <EventBadge isToday={isToday} />;
+                }
+                return null;
+              })}
+            </DayContainer>
+          ) : (
+            <div>
+              <TodayText today={isToday} isActiveDate={isActiveDate}>
+                {date}
+              </TodayText>
+              <EventLabel today={isToday} displayFullEvent={displayFullEvent}>
+                {eventLists?.slice(0, 2)?.map((event: any) => {
+                  const isEventStartDate =
+                    new Date(event?.startDate).getDate() === date;
+                  const isEventEndDate =
+                    new Date(event?.endDate).getDate() === date;
+
+                  const todayDate = new Date(fullDate);
+
+                  const firstDate = new Date(event?.startDate);
+                  const secondDate = new Date(event?.endDate);
+                  const isBetweenDate =
+                    firstDate.getTime() <= todayDate.getTime() &&
+                    todayDate.getTime() <= secondDate.getTime();
+
+                  if (isBetweenDate) {
+                    if (renderEvent) {
+                      return renderEvent({ events: event });
+                    }
                     return (
                       <EventTitle
                         key={event?.title}
@@ -504,18 +543,15 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                         {event?.title}
                       </EventTitle>
                     );
-                  })}
-                </EventLabel>
-              )}
-
-              {!displayFullEvent && events?.events?.length > 0 && (
-                <EventBadge isToday={isToday} />
-              )}
-            </DayContainer>
-          </DayItem>
-        );
-      }
-    );
+                  }
+                  return null;
+                })}
+              </EventLabel>
+            </div>
+          )}
+        </DayItem>
+      );
+    });
   }, [
     displayFullEvent,
     renderDay,
@@ -524,6 +560,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     activeDate,
     activeMonth,
     activeYear,
+    eventLists,
   ]);
 
   return (
@@ -551,14 +588,14 @@ const Days = styled.ul`
   margin: 0;
 `;
 
-const EventLabel = styled.div<{ today?: boolean }>`
+const EventLabel = styled.div<{ today?: boolean; displayFullEvent?: boolean }>`
   display: flex;
   justify-content: center;
   flex-direction: column;
   gap: 4px;
   margin-top: 0.75rem;
-  ${({ today }) => {
-    if (today) {
+  ${({ today, displayFullEvent }) => {
+    if (today && !displayFullEvent) {
       return css`
         margin-top: 0.25rem;
       `;
@@ -566,39 +603,53 @@ const EventLabel = styled.div<{ today?: boolean }>`
   }}
 `;
 
-const TodayText = styled.span`
-  margin: 0 auto;
-  width: fit-content;
-`;
-
-const DayContainer = styled.div<{ today?: boolean; isActiveDate?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-  height: 30px;
-  margin: 0 auto;
-  ${({ today, isActiveDate }) => {
+const getActiveDate = css`
+  ${({ today, isActiveDate, displayFullEvent }) => {
+    const paddingValue = displayFullEvent ? "0rem" : "0.5rem";
     if ((today && isActiveDate) || isActiveDate) {
       return css`
         background: #6565f2;
         border-radius: 8px;
         font-weight: 700;
-        padding: 0.5rem;
+        padding: ${paddingValue};
         color: white;
       `;
     }
     if (today) {
       return css`
         font-weight: 700;
-        padding: 0.5rem;
+        padding: ${paddingValue};
         color: #6565f2;
       `;
     }
   }};
 `;
 
+const TodayText = styled.span<{
+  today?: boolean;
+  isActiveDate?: boolean;
+}>`
+  margin: 0 auto;
+  width: fit-content;
+  ${getActiveDate};
+`;
+
+const DayContainer = styled.div<{
+  today?: boolean;
+  isActiveDate?: boolean;
+  displayFullEvent?: boolean;
+}>`
+  display: flex;
+  flex-direction: column;
+  min-height: 30px;
+  margin: 0 auto;
+  min-width: 40%;
+  max-width: 40%;
+  ${getActiveDate};
+`;
+
 const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
-  height: 60px;
+  min-height: 60px;
   list-style-type: none;
   display: inline-block;
   width: 13.6%;
@@ -615,7 +666,7 @@ const EventBadge = styled.div<{ isToday?: boolean }>`
   background: ${({ isToday }) => (isToday ? "white" : "#f0685b")};
   border-radius: 50%;
   margin: 0 auto;
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
 `;
 
 const EventTitle = styled.span<{
