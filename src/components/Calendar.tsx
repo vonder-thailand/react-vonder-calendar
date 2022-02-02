@@ -466,6 +466,27 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     eventLists,
   } = useCalendarContext();
   // console.log("eventLists ; ", eventLists);
+  const getBetweenDate = useCallback(
+    ({
+      startDate,
+      endDate,
+      fullDate,
+    }: {
+      startDate: number;
+      endDate: number;
+      fullDate: Date;
+    }) => {
+      const todayDate = new Date(fullDate);
+
+      const firstDate = new Date(startDate);
+      const secondDate = new Date(endDate);
+      const isBetweenDate =
+        firstDate.getTime() <= todayDate.getTime() &&
+        todayDate.getTime() <= secondDate.getTime();
+      return isBetweenDate;
+    },
+    []
+  );
 
   const renderDate = useMemo(() => {
     return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
@@ -493,13 +514,11 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             >
               <TodayText>{date}</TodayText>
               {eventLists?.slice(0, 1)?.map((event: any) => {
-                const todayDate = new Date(fullDate);
-
-                const firstDate = new Date(event?.startDate);
-                const secondDate = new Date(event?.endDate);
-                const isBetweenDate =
-                  firstDate.getTime() <= todayDate.getTime() &&
-                  todayDate.getTime() <= secondDate.getTime();
+                const isBetweenDate = getBetweenDate({
+                  startDate: event?.startDate,
+                  endDate: event?.endDate,
+                  fullDate: fullDate,
+                });
 
                 if (isBetweenDate) {
                   if (renderEvent) {
@@ -522,13 +541,11 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   const isEventEndDate =
                     new Date(event?.endDate).getDate() === date;
 
-                  const todayDate = new Date(fullDate);
-
-                  const firstDate = new Date(event?.startDate);
-                  const secondDate = new Date(event?.endDate);
-                  const isBetweenDate =
-                    firstDate.getTime() <= todayDate.getTime() &&
-                    todayDate.getTime() <= secondDate.getTime();
+                  const isBetweenDate = getBetweenDate({
+                    startDate: event?.startDate,
+                    endDate: event?.endDate,
+                    fullDate: fullDate,
+                  });
 
                   if (isBetweenDate) {
                     if (renderEvent) {
@@ -565,8 +582,6 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
 
   return (
     <>
-      {/* <WeekDayList /> */}
-      {/* {renderedWeekDayChildren} */}
       <Days>{renderDate}</Days>
     </>
   );
