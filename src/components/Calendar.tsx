@@ -269,7 +269,7 @@ export default function Calendar({
           date: prevDate,
           prevMonth: true,
           currentMonth: false,
-          fullDate: new Date(PREV_YEAR, PREV_MONTH, prevDate),
+          fullDate: new Date(activeYear, activeMonth - 1, prevDate),
           events: getDateEvents(
             eventLists,
             new Date(activeYear, activeMonth, currentDate)
@@ -282,8 +282,9 @@ export default function Calendar({
           prevMonth: false,
           currentMonth: false,
           fullDate: new Date(
-            activeYear + 1,
-            activeMonth === 11 ? 1 : activeMonth + 1
+            activeMonth === 11 ? activeYear + 1 : activeYear,
+            activeMonth === 11 ? 1 : activeMonth + 1,
+            i - (MAX_DATE + START_INDEX) + 1
           ),
           events: getDateEvents(
             eventLists,
@@ -304,7 +305,13 @@ export default function Calendar({
       };
     });
 
-    return calendarType === "week" ? days.slice(MAX_WEEK - 7, MAX_WEEK) : days;
+    const getDateIndex = days?.findIndex(
+      (day) =>
+        new Date(day.fullDate).getTime() ===
+        new Date(activeYear, activeMonth, activeDate).getTime()
+    );
+    const get7DayOfWeek = days.slice(getDateIndex - 3, getDateIndex + 4);
+    return calendarType === "week" ? get7DayOfWeek : days;
   }, [
     activeMonth,
     activeYear,
@@ -455,7 +462,13 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     activeDate,
   } = useCalendarContext();
 
+  // console.log(
+  //   "new Date(activeYear, activeMonth, activeDate) : ",
+  //   new Date(activeYear, activeMonth, activeDate)
+  // );
   const renderDate = useMemo(() => {
+    console.log("renderDay : ", renderDay);
+
     return renderDay.map(
       ({ date, isToday, events, currentMonth, fullDate }: any) => {
         const isEventStartDate = new Date(events?.startDate).getDate() === date;
@@ -580,7 +593,7 @@ const DayContainer = styled.div<{ today?: boolean; isActiveDate?: boolean }>`
       return css`
         font-weight: 700;
         padding: 0.5rem;
-        color: #f0685b;
+        color: #6565f2;
       `;
     }
   }};
