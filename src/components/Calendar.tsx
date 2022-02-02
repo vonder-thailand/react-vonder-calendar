@@ -253,12 +253,12 @@ export default function Calendar({
   const {
     TODAY,
     PREV_MAX_DATE,
-    PREV_MONTH,
-    PREV_YEAR,
+    // PREV_MONTH,
+    // PREV_YEAR,
     MAX_DATE,
     MAX_COUNT_DATE,
     START_INDEX,
-    MAX_WEEK,
+    // MAX_WEEK,
   } = getCurrentDate;
 
   const renderDay = useMemo(() => {
@@ -314,18 +314,15 @@ export default function Calendar({
     const get7DayOfWeek = days.slice(getDateIndex - 3, getDateIndex + 4);
     return calendarType === "week" ? get7DayOfWeek : days;
   }, [
-    activeMonth,
-    activeYear,
     MAX_COUNT_DATE,
-    MAX_DATE,
-    MAX_WEEK,
-    PREV_MAX_DATE,
-    PREV_MONTH,
-    PREV_YEAR,
-    START_INDEX,
-    TODAY,
-    eventLists,
     calendarType,
+    START_INDEX,
+    MAX_DATE,
+    TODAY,
+    activeYear,
+    activeMonth,
+    PREV_MAX_DATE,
+    activeDate,
   ]);
 
   const contextValue = useMemo(() => {
@@ -356,7 +353,6 @@ export default function Calendar({
     displayFullEvent,
     changeCalendarType,
     calendarType,
-    MONTH_LIST,
     activeDate,
     eventLists,
   ]);
@@ -503,7 +499,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               date: new Date(fullDate).getDate(),
             });
           }}
-          key={date + Math.random() * 2000}
+          key={`${date}-${fullDate}`}
           isCurrentMonth={currentMonth}
         >
           {!displayFullEvent ? (
@@ -524,7 +520,12 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   if (renderEvent) {
                     return renderEvent({ events: event });
                   }
-                  return <EventBadge isToday={isToday} />;
+                  return (
+                    <EventBadge
+                      isToday={isToday}
+                      key={event?.title + new Date(event?.endDate)}
+                    />
+                  );
                 }
                 return null;
               })}
@@ -553,7 +554,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                     }
                     return (
                       <EventTitle
-                        key={event?.title}
+                        key={event?.title + new Date(event?.endDate)}
                         isEventStartDate={isEventStartDate}
                         isEventEndDate={isEventEndDate}
                       >
@@ -570,14 +571,15 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
       );
     });
   }, [
-    displayFullEvent,
     renderDay,
-    renderEvent,
-    setActiveDate,
-    activeDate,
-    activeMonth,
     activeYear,
+    activeMonth,
+    activeDate,
+    displayFullEvent,
     eventLists,
+    setActiveDate,
+    getBetweenDate,
+    renderEvent,
   ]);
 
   return (
