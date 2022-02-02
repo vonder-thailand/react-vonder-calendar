@@ -78,10 +78,22 @@ export type Event = {
   title: string;
 };
 
+/**
+ * Return the number of days in a month
+ * @param {number} month -  month.
+ * @param {number} year -  year.
+ * @returns The number of days in the month.
+ */
 function daysInMonth(month: number, year: number) {
   return new Date(year, month + 1, 0).getDate();
 }
 
+/**
+ * Given today's date and the start date of the month, return the number of weeks in the month
+ * @param {number} todayDate - The current date.
+ * @param {number} startDateOfMonth - the first day of the month.
+ * @returns The number of weeks in the month.
+ */
 const getWeeksNumber = (todayDate: number, startDateOfMonth: number) => {
   return Math.ceil((todayDate + startDateOfMonth) / NUMBER_OF_WEEK);
 };
@@ -655,7 +667,7 @@ const getActiveDate = css`
         font-weight: 700;
         padding-bottom: ${"15px"};
         color: white;
-        padding: ${displayFullEvent ? "10px" : ""};
+        padding: ${displayFullEvent ? "10px" : "0 1rem 1rem 1rem"};
       `;
     }
     if (today) {
@@ -663,7 +675,7 @@ const getActiveDate = css`
         padding-bottom: ${"15px"};
         font-weight: 700;
         color: #6565f2;
-        padding: ${displayFullEvent ? "10px" : ""};
+        padding: ${displayFullEvent ? "10px" : "0 1rem"};
       `;
     }
   }};
@@ -699,6 +711,9 @@ const DayContainer = styled.div<{
   display: flex;
   flex-direction: column;
   min-height: 40px;
+  max-width: 30%;
+  /* 
+  min-width: 50%; */
   margin: 0 auto;
   ${getActiveDate};
 
