@@ -49,34 +49,19 @@
       id: 1,
       startDate: new Date(2021, 11, 30),
       endDate: new Date(2022, 0, 2),
-      events: [
-        {
-          title: "Meeting",
-        },
-      ],
+      title: "Meeting",
     },
     {
       id: 2,
       startDate: new Date(2022, 0, 7),
       endDate: new Date(2022, 0, 10),
-      events: [
-        {
-          title: "Meeting 2",
-        },
-        {
-          title: "G Tower",
-        },
-      ],
+      title: "test",
     },
     {
       id: 3,
       startDate: new Date(2022, 0, 21),
       endDate: new Date(2022, 0, 21),
-      events: [
-        {
-          title: "My Meeeet",
-        },
-      ],
+      title: "Meeting",
     },
   ]}
 >
