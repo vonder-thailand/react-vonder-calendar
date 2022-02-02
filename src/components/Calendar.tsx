@@ -523,6 +523,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   return (
                     <EventBadge
                       isToday={isToday}
+                      isActiveDate={isActiveDate}
                       key={event?.title + new Date(event?.endDate)}
                     />
                   );
@@ -531,41 +532,48 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               })}
             </DayContainer>
           ) : (
-            <div>
-              <TodayText today={isToday} isActiveDate={isActiveDate}>
+            <EventLabel
+              today={isToday}
+              isActiveDate={isActiveDate}
+              displayFullEvent={displayFullEvent}
+            >
+              <TodayText
+                today={isToday}
+                isActiveDate={isActiveDate}
+                displayFullEvent={displayFullEvent}
+              >
                 {date}
               </TodayText>
-              <EventLabel today={isToday} displayFullEvent={displayFullEvent}>
-                {eventLists?.slice(0, 2)?.map((event: any) => {
-                  const isEventStartDate =
-                    new Date(event?.startDate).getDate() === date;
-                  const isEventEndDate =
-                    new Date(event?.endDate).getDate() === date;
+              {eventLists?.slice(0, 2)?.map((event: any) => {
+                const isEventStartDate =
+                  new Date(event?.startDate).getDate() === date;
+                const isEventEndDate =
+                  new Date(event?.endDate).getDate() === date;
 
-                  const isBetweenDate = getBetweenDate({
-                    startDate: event?.startDate,
-                    endDate: event?.endDate,
-                    fullDate: fullDate,
-                  });
+                const isBetweenDate = getBetweenDate({
+                  startDate: event?.startDate,
+                  endDate: event?.endDate,
+                  fullDate: fullDate,
+                });
 
-                  if (isBetweenDate) {
-                    if (renderEvent) {
-                      return renderEvent({ events: event });
-                    }
-                    return (
-                      <EventTitle
-                        key={event?.title + new Date(event?.endDate)}
-                        isEventStartDate={isEventStartDate}
-                        isEventEndDate={isEventEndDate}
-                      >
-                        {event?.title}
-                      </EventTitle>
-                    );
+                if (isBetweenDate) {
+                  if (renderEvent) {
+                    return renderEvent({ events: event });
                   }
-                  return null;
-                })}
-              </EventLabel>
-            </div>
+                  return (
+                    <EventTitle
+                      key={event?.title + new Date(event?.endDate)}
+                      isEventStartDate={isEventStartDate}
+                      isEventEndDate={isEventEndDate}
+                      style={{ marginTop: "0.3rem" }}
+                    >
+                      {event?.title}
+                    </EventTitle>
+                  );
+                }
+                return null;
+              })}
+            </EventLabel>
           )}
         </DayItem>
       );
@@ -605,7 +613,10 @@ const Days = styled.ul`
   margin: 0;
 `;
 
-const EventLabel = styled.div<{ today?: boolean; displayFullEvent?: boolean }>`
+const EventLabel = styled.div<{
+  today?: boolean;
+  displayFullEvent?: boolean;
+}>`
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -622,21 +633,22 @@ const EventLabel = styled.div<{ today?: boolean; displayFullEvent?: boolean }>`
 
 const getActiveDate = css`
   ${({ today, isActiveDate, displayFullEvent }) => {
-    const paddingValue = displayFullEvent ? "0rem" : "0.5rem";
     if ((today && isActiveDate) || isActiveDate) {
       return css`
         background: #6565f2;
         border-radius: 8px;
         font-weight: 700;
-        padding: ${paddingValue};
+        padding-bottom: ${"15px"};
         color: white;
+        padding: ${displayFullEvent ? "10px" : ""};
       `;
     }
     if (today) {
       return css`
+        padding-bottom: ${"15px"};
         font-weight: 700;
-        padding: ${paddingValue};
         color: #6565f2;
+        padding: ${displayFullEvent ? "10px" : ""};
       `;
     }
   }};
@@ -645,28 +657,42 @@ const getActiveDate = css`
 const TodayText = styled.span<{
   today?: boolean;
   isActiveDate?: boolean;
+  displayFullEvent?: boolean;
 }>`
   margin: 0 auto;
   width: fit-content;
+  padding-top: 10px;
+  ${({ displayFullEvent, isActiveDate, today }) => {
+    if (displayFullEvent && !isActiveDate && !today) {
+      return css`
+        margin-bottom: 1.2rem;
+      `;
+    }
+    if (displayFullEvent && (isActiveDate || today)) {
+      return css`
+        margin-bottom: 0.6rem;
+      `;
+    }
+  }}
   ${getActiveDate};
 `;
 
 const DayContainer = styled.div<{
   today?: boolean;
   isActiveDate?: boolean;
-  displayFullEvent?: boolean;
 }>`
   display: flex;
   flex-direction: column;
   min-height: 30px;
   margin: 0 auto;
-  min-width: 40%;
-  max-width: 40%;
   ${getActiveDate};
+
+  /* min-width: 40%;
+  max-width: 40%; */
 `;
 
 const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
-  min-height: 60px;
+  min-height: 70px;
   list-style-type: none;
   display: inline-block;
   width: 13.6%;
@@ -675,12 +701,14 @@ const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
   font-size: 14px;
   cursor: pointer;
   color: ${({ isCurrentMonth }) => (isCurrentMonth ? "#777" : "lightgray")};
+  /* padding-top: 0.75rem; */
 `;
 
-const EventBadge = styled.div<{ isToday?: boolean }>`
+const EventBadge = styled.div<{ isToday?: boolean; isActiveDate?: boolean }>`
   width: 5px;
   height: 5px;
-  background: ${({ isToday }) => (isToday ? "white" : "#f0685b")};
+  background: ${({ isToday, isActiveDate }) =>
+    (isToday && isActiveDate) || isActiveDate ? "white" : "#f0685b"};
   border-radius: 50%;
   margin: 0 auto;
   margin-top: 0.5rem;
@@ -693,7 +721,6 @@ const EventTitle = styled.span<{
   width: 100%;
   margin: 0 auto;
   color: white;
-  margin-top: 0.25rem;
   padding: 2px;
   background: #f0685b;
   ${({ isEventStartDate, isEventEndDate }) => {
