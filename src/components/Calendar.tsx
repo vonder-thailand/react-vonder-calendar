@@ -701,7 +701,8 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               return {
                 x: direction > 0 ? 1000 : -1000,
                 transition: {
-                  duration: 5000,
+                  delay: 2,
+                  delayChildren: 2,
                 },
               };
             },
@@ -714,9 +715,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               return {
                 zIndex: 0,
                 x: direction < 0 ? 1000 : -1000,
-                // transition: {
-                //   duration: 50000,
-                // },
+              
               };
             },
           }}
