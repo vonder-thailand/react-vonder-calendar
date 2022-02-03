@@ -1,4 +1,4 @@
-import { AnimatePresence, AnimateSharedLayout, motion } from "framer-motion";
+import * as Framer from "framer-motion";
 import React, {
   useMemo,
   useState,
@@ -10,7 +10,8 @@ import React, {
   ReactNode,
 } from "react";
 import styled, { css } from "styled-components";
-import "./index.css";
+// import "./index.css";
+const { AnimatePresence, AnimateSharedLayout, motion } = Framer;
 
 const NUMBER_OF_WEEK = 7;
 
@@ -579,9 +580,8 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             >
               <TodayText>{date}</TodayText>
               {isActiveDate && (
-                <motion.div
+                <ActiveItem
                   layoutId="outline"
-                  className="outline"
                   initial={false}
                   animate={{ borderColor: "lightsalmon" }}
                   transition={{
@@ -627,9 +627,8 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                 {date}
               </TodayText>
               {isActiveDate && (
-                <motion.div
+                <ActiveItemFullEvent
                   layoutId="outline-full-event"
-                  className="outline-full-event"
                   initial={false}
                   transition={{
                     type: "spring",
@@ -743,6 +742,53 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
   );
 });
 
+const ActiveItem = styled(motion.div)`
+  position: absolute;
+  left: 18%;
+  background-color: #6565f2;
+  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  @media only screen and (min-width: 379px) and (max-width: 461px) {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    background-color: #6565f2;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+  }
+  @media only screen and (min-width: 463px) and (max-width: 820px) {
+    position: absolute;
+    left: 10%;
+    /* left: 0%;
+    top: 0%; */
+    background-color: #6565f2;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+  }
+
+  @media only screen and (max-width: 381px) {
+    position: absolute;
+    left: 0%;
+    background-color: #6565f2;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+  }
+`;
+
+const ActiveItemFullEvent = styled(motion.div)`
+  position: absolute;
+  left: 13%;
+  top: 6%;
+  background-color: #6565f2;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+`;
+
 const Weekday = styled.ul`
   margin: 0;
   padding: 10px 0;
@@ -758,6 +804,7 @@ const Days = styled.ul`
   padding: 10px 0;
   margin: 0;
   position: absolute;
+  width: 100%;
 `;
 
 const EventLabel = styled.div<{
