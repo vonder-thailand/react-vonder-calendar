@@ -1,0 +1,53 @@
+.outline {
+  position: absolute;
+  left: 18%;
+  background-color: #6565f2;
+  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+}
+
+@media only screen and (min-width: 379px) and (max-width: 461px) {
+  .outline {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    background-color: #6565f2;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+  }
+}
+@media only screen and (min-width: 463px) and (max-width: 820px) {
+  .outline {
+    position: absolute;
+    left: 10%;
+    /* left: 0%;
+    top: 0%; */
+    background-color: #6565f2;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media only screen and (max-width: 381px) {
+  .outline {
+    position: absolute;
+    left: 0%;
+    background-color: #6565f2;
+    border-radius: 8px;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.outline-full-event {
+  position: absolute;
+  left: 13%;
+  top: 6%;
+  background-color: #6565f2;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+}

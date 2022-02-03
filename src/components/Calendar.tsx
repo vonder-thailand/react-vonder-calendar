@@ -1,3 +1,4 @@
+import { AnimatePresence, AnimateSharedLayout, motion } from "framer-motion";
 import React, {
   useMemo,
   useState,
@@ -9,6 +10,7 @@ import React, {
   ReactNode,
 } from "react";
 import styled, { css } from "styled-components";
+import "./index.css";
 
 const NUMBER_OF_WEEK = 7;
 
@@ -487,8 +489,48 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     setActiveDate,
     activeDate,
     eventLists,
+    goNextMonth,
+    goPreviousMonth,
   } = useCalendarContext();
-  // console.log("eventLists ; ", eventLists);
+
+  // let startX = 0;
+  // let startY = 0;
+
+  // window.addEventListener("touchstart", handleTouchStart, false);
+  // window.addEventListener("touchend", handleTouchEnd, false);
+
+  // function handleTouchStart(e) {
+  //   startX = e.changedTouches[0].screenX;
+  //   startY = e.changedTouches[0].screenY;
+  // }
+
+  // function handleTouchEnd(e) {
+  //   const diffX = e.changedTouches[0].screenX - startX;
+  //   const diffY = e.changedTouches[0].screenY - startY;
+  //   const ratioX = Math.abs(diffX / diffY);
+  //   const ratioY = Math.abs(diffY / diffX);
+  //   const absDiff = Math.abs(ratioX > ratioY ? diffX : diffY);
+
+  //   // Ignore small movements.
+  //   if (absDiff < 30) {
+  //     return;
+  //   }
+
+  //   if (ratioX > ratioY) {
+  //     if (diffX >= 0) {
+  //       console.log("right swipe");
+  //     } else {
+  //       console.log("left swipe");
+  //     }
+  //   } else {
+  //     if (diffY >= 0) {
+  //       console.log("down swipe");
+  //     } else {
+  //       console.log("up swipe");
+  //     }
+  //   }
+  // }
+
   const getBetweenDate = useCallback(
     ({
       startDate,
@@ -536,6 +578,19 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               displayFullEvent={displayFullEvent}
             >
               <TodayText>{date}</TodayText>
+              {isActiveDate && (
+                <motion.div
+                  layoutId="outline"
+                  className="outline"
+                  initial={false}
+                  animate={{ borderColor: "lightsalmon" }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 30,
+                  }}
+                />
+              )}
               {eventLists?.slice(0, 1)?.map((event: any) => {
                 const isBetweenDate = getBetweenDate({
                   startDate: event?.startDate,
@@ -571,6 +626,18 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               >
                 {date}
               </TodayText>
+              {isActiveDate && (
+                <motion.div
+                  layoutId="outline-full-event"
+                  className="outline-full-event"
+                  initial={false}
+                  transition={{
+                    type: "spring",
+                    stiffness: 1000,
+                    damping: 30,
+                  }}
+                />
+              )}
               {eventLists?.slice(0, 2)?.map((event: any) => {
                 const isEventStartDate =
                   new Date(event?.startDate).getDate() === date;
@@ -617,10 +684,62 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     renderEvent,
   ]);
 
+  const [direction, setDirection] = useState(0);
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
   return (
-    <>
-      <Days>{renderDate}</Days>
-    </>
+    <AnimateSharedLayout>
+      <AnimatePresence initial={false} custom={direction}>
+        <motion.div
+          key={activeMonth}
+          custom={direction}
+          variants={{
+            enter: (direction: number) => {
+              return {
+                x: direction > 0 ? 1000 : -1000,
+              };
+            },
+            center: {
+              zIndex: 1,
+              x: 0,
+              opacity: 1,
+            },
+            exit: (direction: number) => {
+              return {
+                zIndex: 0,
+                x: direction < 0 ? 1000 : -1000,
+              };
+            },
+          }}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            x: { type: "spring", stiffness: 300, damping: 30 },
+            opacity: { duration: 0.2 },
+          }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={1}
+          onDragEnd={(_, { offset, velocity }) => {
+            const swipe = swipePower(offset.x, velocity.x);
+
+            if (swipe < -swipeConfidenceThreshold) {
+              setDirection(1);
+              goNextMonth();
+            } else if (swipe > swipeConfidenceThreshold) {
+              setDirection(-1);
+              goPreviousMonth();
+            }
+          }}
+        >
+          <Days>{renderDate}</Days>
+        </motion.div>
+      </AnimatePresence>
+    </AnimateSharedLayout>
   );
 });
 
@@ -638,6 +757,7 @@ const Weekday = styled.ul`
 const Days = styled.ul`
   padding: 10px 0;
   margin: 0;
+  position: absolute;
 `;
 
 const EventLabel = styled.div<{
@@ -647,6 +767,7 @@ const EventLabel = styled.div<{
   display: flex;
   justify-content: center;
   flex-direction: column;
+  position: relative;
   gap: 4px;
   margin-top: 0.75rem;
   ${({ today, displayFullEvent }) => {
@@ -662,7 +783,6 @@ const getActiveDate = css`
   ${({ today, isActiveDate, displayFullEvent }) => {
     if ((today && isActiveDate) || isActiveDate) {
       return css`
-        background: #6565f2;
         border-radius: 8px;
         font-weight: 700;
         padding-bottom: ${"15px"};
@@ -689,6 +809,7 @@ const TodayText = styled.span<{
   margin: 0 auto;
   width: fit-content;
   padding-top: 10px;
+  z-index: 20;
   ${({ displayFullEvent, isActiveDate, today }) => {
     if (displayFullEvent && !isActiveDate && !today) {
       return css`
@@ -712,6 +833,8 @@ const DayContainer = styled.div<{
   flex-direction: column;
   min-height: 40px;
   max-width: 30%;
+  position: relative;
+
   /* 
   min-width: 50%; */
   margin: 0 auto;
@@ -742,6 +865,7 @@ const EventBadge = styled.div<{ isToday?: boolean; isActiveDate?: boolean }>`
   border-radius: 50%;
   margin: 0 auto;
   margin-top: 0.5rem;
+  z-index: 20;
 `;
 
 const EventTitle = styled.span<{
