@@ -715,7 +715,6 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               return {
                 zIndex: 0,
                 x: direction < 0 ? 1000 : -1000,
-              
               };
             },
           }}
@@ -905,7 +904,7 @@ const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
   text-align: center;
   /* margin-bottom: 30px; */
   font-size: 14px;
-  cursor: pointer;
+  /* cursor: pointer; */
   color: ${({ isCurrentMonth }) => (isCurrentMonth ? "#777" : "lightgray")};
   /* padding-top: 0.75rem; */
 `;
