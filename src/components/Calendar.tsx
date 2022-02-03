@@ -10,6 +10,7 @@ import React, {
   ReactNode,
 } from "react";
 import styled, { css } from "styled-components";
+import GlobalStyles from "./GlobalStyles";
 // import "./index.css";
 const { AnimatePresence, AnimateSharedLayout, motion } = Framer;
 
@@ -383,6 +384,7 @@ export default function Calendar({
   return (
     <CalendarContext.Provider value={contextValue}>
       {children}
+      <GlobalStyles />
     </CalendarContext.Provider>
   );
 }
@@ -698,6 +700,9 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             enter: (direction: number) => {
               return {
                 x: direction > 0 ? 1000 : -1000,
+                transition: {
+                  duration: 5000,
+                },
               };
             },
             center: {
@@ -709,6 +714,9 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               return {
                 zIndex: 0,
                 x: direction < 0 ? 1000 : -1000,
+                // transition: {
+                //   duration: 50000,
+                // },
               };
             },
           }}

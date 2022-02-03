@@ -5,7 +5,7 @@ import Calendar, {
   CalendarHeader,
   CalendarWeekDay,
   DateEvent,
-} from "react-vonder-calendar";
+} from "react-vonder-calendar-test";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
       <h2>Calendar</h2>
       <Calendar
         type={"month"}
-        displayFullEvent
+        displayFullEvent={false}
         eventLists={[
           {
             id: 1,
