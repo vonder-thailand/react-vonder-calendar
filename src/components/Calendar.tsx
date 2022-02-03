@@ -583,7 +583,6 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                 <ActiveItem
                   layoutId="outline"
                   initial={false}
-                  animate={{ borderColor: "lightsalmon" }}
                   transition={{
                     type: "spring",
                     stiffness: 500,
@@ -632,7 +631,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   initial={false}
                   transition={{
                     type: "spring",
-                    stiffness: 1000,
+                    stiffness: 500,
                     damping: 30,
                   }}
                 />
