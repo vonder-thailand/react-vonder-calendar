@@ -10,7 +10,7 @@ import React, {
   ReactNode,
 } from "react";
 import styled, { css } from "styled-components";
-import GlobalStyles from "./GlobalStyles";
+// import GlobalStyles from "./GlobalStyles";
 // import "./index.css";
 const { AnimatePresence, AnimateSharedLayout, motion } = Framer;
 
@@ -270,6 +270,7 @@ export default function Calendar({
   } = getCurrentDate;
 
   const goNextWeek = useCallback(() => {
+    setDirection(1);
     setActiveDate((prev) => {
       const isGoNextMonth = prev.date + 7 > MAX_DATE;
       const formatDateNextMonth = prev.date + 7 - MAX_DATE;
@@ -284,6 +285,7 @@ export default function Calendar({
   }, [MAX_DATE]);
 
   const goPreviousWeek = useCallback(() => {
+    setDirection(-1);
     setActiveDate((prev) => {
       const IsGoPrevMonth = prev.date - 7 <= 0;
       const formatDatePrevMonth = prev.date - 7 + MAX_DATE;
@@ -392,7 +394,7 @@ export default function Calendar({
   return (
     <CalendarContext.Provider value={contextValue}>
       {children}
-      <GlobalStyles />
+      {/* <GlobalStyles /> */}
     </CalendarContext.Provider>
   );
 }
@@ -491,6 +493,25 @@ export const WeekDayItem = ({ children }: WeekDayItemProps) => {
 CalendarWeekDay.Item = WeekDayItem;
 CalendarWeekDay.displayName = "CalendarWeekDay";
 
+const getBetweenDate = ({
+  startDate,
+  endDate,
+  fullDate,
+}: {
+  startDate: number;
+  endDate: number;
+  fullDate: Date;
+}) => {
+  const todayDate = new Date(fullDate);
+
+  const firstDate = new Date(startDate);
+  const secondDate = new Date(endDate);
+  const isBetweenDate =
+    firstDate.getTime() <= todayDate.getTime() &&
+    todayDate.getTime() <= secondDate.getTime();
+  return isBetweenDate;
+};
+
 export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
   const {
     renderDay,
@@ -503,67 +524,10 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     goNextMonth,
     goPreviousMonth,
     direction,
+    calendarType,
+    goNextWeek,
+    goPreviousWeek,
   } = useCalendarContext();
-
-  // let startX = 0;
-  // let startY = 0;
-
-  // window.addEventListener("touchstart", handleTouchStart, false);
-  // window.addEventListener("touchend", handleTouchEnd, false);
-
-  // function handleTouchStart(e) {
-  //   startX = e.changedTouches[0].screenX;
-  //   startY = e.changedTouches[0].screenY;
-  // }
-
-  // function handleTouchEnd(e) {
-  //   const diffX = e.changedTouches[0].screenX - startX;
-  //   const diffY = e.changedTouches[0].screenY - startY;
-  //   const ratioX = Math.abs(diffX / diffY);
-  //   const ratioY = Math.abs(diffY / diffX);
-  //   const absDiff = Math.abs(ratioX > ratioY ? diffX : diffY);
-
-  //   // Ignore small movements.
-  //   if (absDiff < 30) {
-  //     return;
-  //   }
-
-  //   if (ratioX > ratioY) {
-  //     if (diffX >= 0) {
-  //       console.log("right swipe");
-  //     } else {
-  //       console.log("left swipe");
-  //     }
-  //   } else {
-  //     if (diffY >= 0) {
-  //       console.log("down swipe");
-  //     } else {
-  //       console.log("up swipe");
-  //     }
-  //   }
-  // }
-
-  const getBetweenDate = useCallback(
-    ({
-      startDate,
-      endDate,
-      fullDate,
-    }: {
-      startDate: number;
-      endDate: number;
-      fullDate: Date;
-    }) => {
-      const todayDate = new Date(fullDate);
-
-      const firstDate = new Date(startDate);
-      const secondDate = new Date(endDate);
-      const isBetweenDate =
-        firstDate.getTime() <= todayDate.getTime() &&
-        todayDate.getTime() <= secondDate.getTime();
-      return isBetweenDate;
-    },
-    []
-  );
 
   const renderDate = useMemo(() => {
     return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
@@ -584,7 +548,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               date: new Date(fullDate).getDate(),
             });
           }}
-          key={`${date}-${fullDate}`}
+          key={fullDate}
           isCurrentMonth={currentMonth}
         >
           {!displayFullEvent ? (
@@ -605,6 +569,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   }}
                 />
               )}
+
               {eventLists?.slice(0, 1)?.map((event: any) => {
                 const isBetweenDate = getBetweenDate({
                   startDate: event?.startDate,
@@ -693,7 +658,6 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     displayFullEvent,
     eventLists,
     setActiveDate,
-    getBetweenDate,
     renderEvent,
   ]);
 
@@ -706,17 +670,17 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     <AnimateSharedLayout>
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
-          key={activeMonth}
+          key={
+            calendarType === "month"
+              ? activeMonth + activeYear
+              : activeDate + activeMonth + activeYear
+          }
           custom={direction}
           variants={{
             enter: (direction: number) => {
               return {
                 x: direction > 0 ? 1000 : -1000,
                 opacity: 0,
-                // transition: {
-                //   delay: 2,
-                //   delayChildren: 2,
-                // },
               };
             },
             center: {
@@ -746,9 +710,9 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             const swipe = swipePower(offset.x, velocity.x);
 
             if (swipe < -swipeConfidenceThreshold) {
-              goNextMonth();
+              calendarType === "month" ? goNextMonth() : goNextWeek();
             } else if (swipe > swipeConfidenceThreshold) {
-              goPreviousMonth();
+              calendarType === "month" ? goPreviousMonth() : goPreviousWeek();
             }
           }}
         >
