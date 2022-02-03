@@ -125,6 +125,7 @@ type ContextProps = {
   eventLists?: Events[];
   goNextWeek: () => void;
   goPreviousWeek: () => void;
+  direction: number;
 };
 
 const CalendarContext = createContext<ContextProps | null>(null);
@@ -176,6 +177,7 @@ export default function Calendar({
     setActiveDate,
   ] = useState(DEFAULT_DATE);
   const [calendarType, setType] = useState<"month" | "week">("month");
+  const [direction, setDirection] = useState(0);
 
   useEffect(() => {
     if (type) {
@@ -198,29 +200,33 @@ export default function Calendar({
   }, []);
 
   const goNextMonth = useCallback(() => {
-    setActiveDate((prev) => {
+    setDirection(1);
+    setActiveDate((prev: any) => {
       if (prev.month + 1 > 11) {
         return {
           ...prev,
+          date: null,
           month: 0,
           year: prev.year + 1,
         };
       } else {
-        return { ...prev, month: prev.month + 1 };
+        return { ...prev, month: prev.month + 1, date: null };
       }
     });
   }, []);
 
   const goPreviousMonth = useCallback(() => {
-    setActiveDate((prev) => {
+    setDirection(-1);
+    setActiveDate((prev: any) => {
       if (prev.month - 1 < 0) {
         return {
           ...prev,
+          date: null,
           month: 11,
           year: prev.year - 1,
         };
       } else {
-        return { ...prev, month: prev.month - 1 };
+        return { ...prev, month: prev.month - 1, date: null };
       }
     });
   }, []);
@@ -363,6 +369,7 @@ export default function Calendar({
       eventLists,
       goNextWeek,
       goPreviousWeek,
+      direction,
     };
   }, [
     goNextMonth,
@@ -379,6 +386,7 @@ export default function Calendar({
     eventLists,
     goNextWeek,
     goPreviousWeek,
+    direction,
   ]);
 
   return (
@@ -494,6 +502,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     eventLists,
     goNextMonth,
     goPreviousMonth,
+    direction,
   } = useCalendarContext();
 
   // let startX = 0;
@@ -562,6 +571,10 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
         new Date(activeYear, activeMonth, activeDate).getTime() ===
         new Date(fullDate).getTime();
 
+      const isActiveItem =
+        (activeDate === null && isToday) ||
+        (isActiveDate && activeDate !== null);
+
       return (
         <DayItem
           onClick={() => {
@@ -577,11 +590,11 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
           {!displayFullEvent ? (
             <DayContainer
               today={isToday}
-              isActiveDate={isActiveDate}
+              isActiveDate={isActiveItem}
               displayFullEvent={displayFullEvent}
             >
               <TodayText>{date}</TodayText>
-              {isActiveDate && (
+              {isActiveItem && (
                 <ActiveItem
                   layoutId="outline"
                   initial={false}
@@ -606,7 +619,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                   return (
                     <EventBadge
                       isToday={isToday}
-                      isActiveDate={isActiveDate}
+                      isActiveDate={isActiveItem}
                       key={event?.title + new Date(event?.endDate)}
                     />
                   );
@@ -622,12 +635,12 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             >
               <TodayText
                 today={isToday}
-                isActiveDate={isActiveDate}
+                isActiveDate={isActiveItem}
                 displayFullEvent={displayFullEvent}
               >
                 {date}
               </TodayText>
-              {isActiveDate && (
+              {isActiveItem && (
                 <ActiveItemFullEvent
                   layoutId="outline-full-event"
                   initial={false}
@@ -684,7 +697,6 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     renderEvent,
   ]);
 
-  const [direction, setDirection] = useState(0);
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset: number, velocity: number) => {
     return Math.abs(offset) * velocity;
@@ -700,10 +712,11 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             enter: (direction: number) => {
               return {
                 x: direction > 0 ? 1000 : -1000,
-                transition: {
-                  delay: 2,
-                  delayChildren: 2,
-                },
+                opacity: 0,
+                // transition: {
+                //   delay: 2,
+                //   delayChildren: 2,
+                // },
               };
             },
             center: {
@@ -715,6 +728,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               return {
                 zIndex: 0,
                 x: direction < 0 ? 1000 : -1000,
+                opacity: 0,
               };
             },
           }}
@@ -732,10 +746,8 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
             const swipe = swipePower(offset.x, velocity.x);
 
             if (swipe < -swipeConfidenceThreshold) {
-              setDirection(1);
               goNextMonth();
             } else if (swipe > swipeConfidenceThreshold) {
-              setDirection(-1);
               goPreviousMonth();
             }
           }}
