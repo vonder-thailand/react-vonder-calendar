@@ -34,6 +34,7 @@ export type CalendarProps = {
   type?: CalendarType;
   locale?: "TH";
   disableSwipe?: boolean;
+  fixWeek?: boolean;
 };
 
 export type CalendarControlButtonPropsChildrenProps = {
@@ -129,6 +130,7 @@ type ContextProps = {
   goPreviousWeek: () => void;
   direction: number;
   disableSwipe?: boolean;
+  fixWeek?: boolean;
 };
 
 const CalendarContext = createContext<ContextProps | null>(null);
@@ -175,7 +177,10 @@ export default function Calendar({
   type = "month",
   locale = "TH",
   disableSwipe,
+  fixWeek,
 }: CalendarProps) {
+  // const FIX_WEEK = true;
+
   const [
     { year: activeYear, month: activeMonth, date: activeDate },
     setActiveDate,
@@ -270,7 +275,7 @@ export default function Calendar({
     MAX_DATE,
     MAX_COUNT_DATE,
     START_INDEX,
-    // MAX_WEEK,
+    MAX_WEEK,
   } = getCurrentDate;
 
   const goNextWeek = useCallback(() => {
@@ -343,10 +348,16 @@ export default function Calendar({
         new Date(day.fullDate).getTime() ===
         new Date(activeYear, activeMonth, activeDate).getTime()
     );
-    const get7DayOfWeek = days.slice(getDateIndex - 3, getDateIndex + 4);
+
+    const fix7dayWeek = days.slice(MAX_WEEK - 7, MAX_WEEK);
+    const get7DayOfWeek = fixWeek
+      ? fix7dayWeek
+      : days.slice(getDateIndex - 3, getDateIndex + 4);
     return calendarType === "week" ? get7DayOfWeek : days;
   }, [
     MAX_COUNT_DATE,
+    MAX_WEEK,
+    fixWeek,
     calendarType,
     START_INDEX,
     MAX_DATE,
@@ -377,8 +388,10 @@ export default function Calendar({
       goPreviousWeek,
       direction,
       disableSwipe,
+      fixWeek,
     };
   }, [
+    fixWeek,
     disableSwipe,
     goNextMonth,
     goPreviousMonth,
@@ -548,6 +561,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     goNextWeek,
     goPreviousWeek,
     disableSwipe,
+    fixWeek,
   } = useCalendarContext();
 
   const renderDate = useMemo(() => {
@@ -587,7 +601,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                     type: "spring",
                     stiffness: 500,
                     damping: 30,
-                    delay: calendarType === "month" ? 0 : 0.2,
+                    delay: calendarType === "month" || fixWeek ? 0 : 0.1,
                   }}
                 />
               )}
@@ -674,6 +688,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
       );
     });
   }, [
+    fixWeek,
     calendarType,
     renderDay,
     activeYear,
@@ -692,72 +707,69 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
 
   return (
     <AnimateSharedLayout>
-      <AnimatePresence initial={false} custom={direction}>
-        <motion.div
-          key={
-            calendarType === "month"
-              ? activeMonth + activeYear
-              : activeDate + activeMonth + activeYear
-          }
-          custom={direction}
-          variants={{
-            enter: (direction: number) => {
-              return {
-                // zIndex: 0,
-                // x: direction > 0 ? 1000 : -1000,
-                translateX: direction > 0 ? 1000 : -1000,
-                opacity: 0,
-                position: "absolute",
-              };
-            },
-            center: () => {
-              return {
-                zIndex: 1,
-                translateX: 0,
-                opacity: 1,
-                position: "relative",
-                x: 0,
-                // transition: {
-                //   x: {
-                //     duration: 0.1,
-                //   },
-                // },
-              };
-            },
-            exit: (direction: number) => {
-              return {
-                zIndex: 0,
-                translateX: direction < 0 ? 1000 : -1000,
-
-                opacity: 0,
-                position: "absolute",
-              };
-            },
-          }}
-          initial="enter"
-          animate={"center"}
-          exit="exit"
-          transition={{
-            x: { type: "spring", stiffness: 300, damping: 30 },
-            // opacity: { duration: 0.2 },
-            // position: { duration: 0 },
-          }}
-          drag={disableSwipe ? undefined : "x"}
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0}
-          onDragEnd={(_, { offset, velocity }) => {
-            const swipe = swipePower(offset.x, velocity.x);
-
-            if (swipe < -swipeConfidenceThreshold) {
-              calendarType === "month" ? goNextMonth() : goNextWeek();
-            } else if (swipe > swipeConfidenceThreshold) {
-              calendarType === "month" ? goPreviousMonth() : goPreviousWeek();
+      {fixWeek && calendarType === "week" ? (
+        <Days>{renderDate}</Days>
+      ) : (
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={
+              calendarType === "month"
+                ? activeMonth + activeYear
+                : activeDate + activeMonth + activeYear
             }
-          }}
-        >
-          <Days>{renderDate}</Days>
-        </motion.div>
-      </AnimatePresence>
+            custom={direction}
+            variants={{
+              enter: (direction: number) => {
+                return {
+                  translateX: direction > 0 ? 1000 : -1000,
+                  opacity: 0,
+                  position: "absolute",
+                };
+              },
+              center: () => {
+                return {
+                  zIndex: 1,
+                  translateX: 0,
+                  opacity: 1,
+                  position: "relative",
+                  x: 0,
+                };
+              },
+              exit: (direction: number) => {
+                return {
+                  zIndex: 0,
+                  translateX: direction < 0 ? 1000 : -1000,
+
+                  opacity: 0,
+                  position: "absolute",
+                };
+              },
+            }}
+            initial="enter"
+            animate={"center"}
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              // opacity: { duration: 0.2 },
+              // position: { duration: 0 },
+            }}
+            drag={disableSwipe || fixWeek ? undefined : "x"}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0}
+            onDragEnd={(_, { offset, velocity }) => {
+              const swipe = swipePower(offset.x, velocity.x);
+
+              if (swipe < -swipeConfidenceThreshold) {
+                calendarType === "month" ? goNextMonth() : goNextWeek();
+              } else if (swipe > swipeConfidenceThreshold) {
+                calendarType === "month" ? goPreviousMonth() : goPreviousWeek();
+              }
+            }}
+          >
+            <Days>{renderDate}</Days>
+          </motion.div>
+        </AnimatePresence>
+      )}
     </AnimateSharedLayout>
   );
 });

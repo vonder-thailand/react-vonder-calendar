@@ -11,8 +11,9 @@ function App() {
   return (
     <div className="App" style={{ margin: "0 auto" }}>
       <Calendar
-        type="month"
+        type="week"
         displayFullEvent={false}
+        fixWeek
         eventLists={[
           {
             id: 1,
