@@ -581,6 +581,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                     type: "spring",
                     stiffness: 500,
                     damping: 30,
+                    delay: calendarType === "month" ? 0 : 0.2,
                   }}
                 />
               )}
@@ -628,6 +629,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                     type: "spring",
                     stiffness: 500,
                     damping: 30,
+                    delay: calendarType === "month" ? 0 : 0.2,
                   }}
                 />
               )}
@@ -666,6 +668,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
       );
     });
   }, [
+    calendarType,
     renderDay,
     activeYear,
     activeMonth,
@@ -696,18 +699,24 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               return {
                 x: direction > 0 ? 1000 : -1000,
                 opacity: 0,
+                position: "absolute",
+                transition: {
+                  delay: 1,
+                },
               };
             },
             center: {
               zIndex: 1,
               x: 0,
               opacity: 1,
+              position: "relative",
             },
             exit: (direction: number) => {
               return {
                 zIndex: 0,
                 x: direction < 0 ? 1000 : -1000,
                 opacity: 0,
+                position: "absolute",
               };
             },
           }}
@@ -799,7 +808,7 @@ const Weekday = styled.ul`
 const Days = styled.ul`
   padding: 10px 0;
   margin: 0;
-  position: absolute;
+  /* position: absolute; */
   width: 100%;
 `;
 
