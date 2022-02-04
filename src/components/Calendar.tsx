@@ -57,6 +57,7 @@ export type CalendarControlButtonProps = {
 export type CalendarHeaderButtonPropsChildrenProps = {
   activeYear?: number;
   activeMonth?: number;
+  currentDate?: string;
 };
 
 export type CalendarHeaderButtonProps = {
@@ -115,7 +116,7 @@ type ContextProps = {
   activeYear: number;
   activeMonth: number;
   activeDate: number;
-  locale: "TH";
+  locale: "TH" | "EN";
   goToDay: () => void;
   displayFullEvent?: boolean;
   changeCalendarType: () => void;
@@ -393,7 +394,7 @@ export default function Calendar({
 
   return (
     <CalendarContext.Provider value={contextValue}>
-      {children}
+      <div style={{ textAlign: "center" }}>{children}</div>
       {/* <GlobalStyles /> */}
     </CalendarContext.Provider>
   );
@@ -455,11 +456,25 @@ export const CalendarControlButton = memo(
 export const CalendarHeader = memo(
   ({ children }: CalendarHeaderButtonProps) => {
     const { activeYear, activeMonth, locale } = useCalendarContext();
+    const currentDate = new Date()
+      .toLocaleDateString(locale || "en-US", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+      .split(" ")
+      .join(" ");
     if (children) {
-      return children({ activeYear: activeYear, activeMonth: activeMonth });
+      return children({
+        activeYear: activeYear,
+        activeMonth: activeMonth,
+        currentDate: currentDate,
+      });
     }
     return (
-      <h2>{new Date(activeYear, activeMonth).toLocaleDateString(locale)}</h2>
+      <h2 style={{ fontSize: "20px", textIndent: "1.5rem", textAlign: "left" }}>
+        {currentDate}
+      </h2>
     );
   }
 );
