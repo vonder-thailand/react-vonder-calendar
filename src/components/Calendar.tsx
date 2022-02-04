@@ -35,6 +35,7 @@ export type CalendarProps = {
   locale?: "TH";
   disableSwipe?: boolean;
   fixWeek?: boolean;
+  onClick?: (date: any) => void;
 };
 
 export type CalendarControlButtonPropsChildrenProps = {
@@ -178,6 +179,7 @@ export default function Calendar({
   locale = "TH",
   disableSwipe,
   fixWeek,
+  onClick,
 }: CalendarProps) {
   // const FIX_WEEK = true;
 
@@ -193,6 +195,34 @@ export default function Calendar({
       setType(type);
     }
   }, [type]);
+
+  useEffect(() => {
+    if (onClick) {
+      onClick({
+        activeDate:
+          new Date().getMonth() === activeMonth &&
+          new Date().getFullYear() === activeYear
+            ? new Date().getDate()
+            : activeDate,
+        activeMonth: activeMonth,
+        activeYear: activeYear,
+      });
+    }
+  }, [activeDate, activeMonth, activeYear, onClick]);
+
+  useEffect(() => {
+    if (fixWeek && calendarType === "month") {
+      console.warn(`fixWeek only work with calendar type "week"`);
+    }
+    if (calendarType === "week" && displayFullEvent) {
+      console.warn(`display full event only work with calendar type "month"`);
+    }
+    if (fixWeek && disableSwipe) {
+      console.warn(
+        `fixWeek will disable swipe automatically, but if disableSwipe = true and fixWeek= false or undefine, when user click some date calendar will swipe to 7 day of week belong to active date`
+      );
+    }
+  }, [calendarType, disableSwipe, displayFullEvent, fixWeek]);
 
   useEffect(() => {
     if (currentDate) {
@@ -563,6 +593,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     disableSwipe,
     fixWeek,
   } = useCalendarContext();
+  const isFixWeek = fixWeek && calendarType === "week";
 
   const renderDate = useMemo(() => {
     return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
@@ -582,16 +613,19 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               month: new Date(fullDate).getMonth(),
               date: new Date(fullDate).getDate(),
             });
+            // if (onClick) {
+            //   onClick({
+            //     year: new Date(fullDate).getFullYear(),
+            //     month: new Date(fullDate).getMonth(),
+            //     date: new Date(fullDate).getDate(),
+            //   });
+            // }
           }}
           key={fullDate}
           isCurrentMonth={currentMonth}
         >
-          {!displayFullEvent ? (
-            <DayContainer
-              today={isToday}
-              isActiveDate={isActiveItem}
-              displayFullEvent={displayFullEvent}
-            >
+          {!displayFullEvent || calendarType === "week" ? (
+            <DayContainer today={isToday} isActiveDate={isActiveItem}>
               <TodayText>{date}</TodayText>
               {isActiveItem && (
                 <ActiveItem
@@ -601,7 +635,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
                     type: "spring",
                     stiffness: 500,
                     damping: 30,
-                    delay: calendarType === "month" || fixWeek ? 0 : 0.1,
+                    delay: calendarType === "month" || isFixWeek ? 0 : 0.3,
                   }}
                 />
               )}
@@ -688,13 +722,13 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
       );
     });
   }, [
-    fixWeek,
-    calendarType,
     renderDay,
     activeYear,
     activeMonth,
     activeDate,
     displayFullEvent,
+    calendarType,
+    isFixWeek,
     eventLists,
     setActiveDate,
     renderEvent,
@@ -707,7 +741,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
 
   return (
     <AnimateSharedLayout>
-      {fixWeek && calendarType === "week" ? (
+      {isFixWeek ? (
         <Days>{renderDate}</Days>
       ) : (
         <AnimatePresence initial={false} custom={direction}>
@@ -753,7 +787,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
               // opacity: { duration: 0.2 },
               // position: { duration: 0 },
             }}
-            drag={disableSwipe || fixWeek ? undefined : "x"}
+            drag={disableSwipe || isFixWeek ? undefined : "x"}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0}
             onDragEnd={(_, { offset, velocity }) => {
@@ -956,6 +990,7 @@ const EventTitle = styled.span<{
   color: white;
   padding: 2px;
   background: #f0685b;
+  font-size: 10px;
   ${({ isEventStartDate, isEventEndDate }) => {
     if (isEventStartDate && isEventEndDate) {
       return css`

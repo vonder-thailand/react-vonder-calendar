@@ -110,3 +110,6 @@ Calendar Props
 | `displayFullEvent` | boolean default is false                                                                  |
 | `eventLists`       | Array of Events                                                                           |
 | `children`         | `<CalendarControlButton /> or <CalendarHeader /> or <CalendarWeekDay /> or <DateEvent />` |
+| `fixWeek`          | work with calendarType === "week" only, calendar will not play animation when select date |
+| `disableSwipe`     | disable swipe calendar to next month or prev month                                        |
+| `onClick`          | on user click date                                                                        |
