@@ -33,6 +33,7 @@ export type CalendarProps = {
   displayFullEvent?: boolean;
   type?: CalendarType;
   locale?: "TH";
+  disableSwipe?: boolean;
 };
 
 export type CalendarControlButtonPropsChildrenProps = {
@@ -127,6 +128,7 @@ type ContextProps = {
   goNextWeek: () => void;
   goPreviousWeek: () => void;
   direction: number;
+  disableSwipe?: boolean;
 };
 
 const CalendarContext = createContext<ContextProps | null>(null);
@@ -172,6 +174,7 @@ export default function Calendar({
   displayFullEvent,
   type = "month",
   locale = "TH",
+  disableSwipe,
 }: CalendarProps) {
   const [
     { year: activeYear, month: activeMonth, date: activeDate },
@@ -373,8 +376,10 @@ export default function Calendar({
       goNextWeek,
       goPreviousWeek,
       direction,
+      disableSwipe,
     };
   }, [
+    disableSwipe,
     goNextMonth,
     goPreviousMonth,
     renderDay,
@@ -542,6 +547,7 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
     calendarType,
     goNextWeek,
     goPreviousWeek,
+    disableSwipe,
   } = useCalendarContext();
 
   const renderDate = useMemo(() => {
@@ -697,39 +703,48 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
           variants={{
             enter: (direction: number) => {
               return {
-                x: direction > 0 ? 1000 : -1000,
+                // zIndex: 0,
+                // x: direction > 0 ? 1000 : -1000,
+                translateX: direction > 0 ? 1000 : -1000,
                 opacity: 0,
                 position: "absolute",
-                transition: {
-                  delay: 1,
-                },
               };
             },
-            center: {
-              zIndex: 1,
-              x: 0,
-              opacity: 1,
-              position: "relative",
+            center: () => {
+              return {
+                zIndex: 1,
+                translateX: 0,
+                opacity: 1,
+                position: "relative",
+                x: 0,
+                // transition: {
+                //   x: {
+                //     duration: 0.1,
+                //   },
+                // },
+              };
             },
             exit: (direction: number) => {
               return {
                 zIndex: 0,
-                x: direction < 0 ? 1000 : -1000,
+                translateX: direction < 0 ? 1000 : -1000,
+
                 opacity: 0,
                 position: "absolute",
               };
             },
           }}
           initial="enter"
-          animate="center"
+          animate={"center"}
           exit="exit"
           transition={{
             x: { type: "spring", stiffness: 300, damping: 30 },
-            opacity: { duration: 0.2 },
+            // opacity: { duration: 0.2 },
+            // position: { duration: 0 },
           }}
-          drag="x"
+          drag={disableSwipe ? undefined : "x"}
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={1}
+          dragElastic={0}
           onDragEnd={(_, { offset, velocity }) => {
             const swipe = swipePower(offset.x, velocity.x);
 
