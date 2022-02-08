@@ -211,10 +211,10 @@ export default function Calendar({
   }, [activeDate, activeMonth, activeYear, onClick]);
 
   useEffect(() => {
-    if (fixWeek && calendarType === "month") {
+    if (fixWeek && type === "month") {
       console.warn(`fixWeek only work with calendar type "week"`);
     }
-    if (calendarType === "week" && displayFullEvent) {
+    if (type === "week" && displayFullEvent) {
       console.warn(`display full event only work with calendar type "month"`);
     }
     if (fixWeek && disableSwipe) {
@@ -222,7 +222,7 @@ export default function Calendar({
         `fixWeek will disable swipe automatically, but if disableSwipe = true and fixWeek= false or undefine, when user click some date calendar will swipe to 7 day of week belong to active date`
       );
     }
-  }, [calendarType, disableSwipe, displayFullEvent, fixWeek]);
+  }, [type, disableSwipe, displayFullEvent, fixWeek]);
 
   useEffect(() => {
     if (currentDate) {
@@ -810,12 +810,15 @@ export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
 
 const ActiveItem = styled(motion.div)`
   position: absolute;
-  left: 18%;
+
   background-color: #6565f2;
   border-radius: 8px;
-  width: 50px;
+  width: 100%;
   height: 50px;
-  @media only screen and (min-width: 379px) and (max-width: 461px) {
+  left: 0%;
+  top: 0%;
+  /* transform: translate(-50%, -50%); */
+  /* @media only screen and (min-width: 379px) and (max-width: 461px) {
     position: absolute;
     left: 0%;
     top: 0%;
@@ -827,8 +830,6 @@ const ActiveItem = styled(motion.div)`
   @media only screen and (min-width: 463px) and (max-width: 820px) {
     position: absolute;
     left: 10%;
-    /* left: 0%;
-    top: 0%; */
     background-color: #6565f2;
     border-radius: 8px;
     width: 50px;
@@ -842,16 +843,18 @@ const ActiveItem = styled(motion.div)`
     border-radius: 8px;
     width: 50px;
     height: 50px;
-  }
+  } */
 `;
 
 const ActiveItemFullEvent = styled(motion.div)`
   position: absolute;
-  left: 13%;
-  top: 6%;
+  left: 5%;
+  top: 14%;
   background-color: #6565f2;
   border-radius: 8px;
-  width: 40px;
+  width: 100%;
+  max-width: 90%;
+  /* width: 40px; */
   height: 40px;
 `;
 
@@ -880,7 +883,7 @@ const EventLabel = styled.div<{
   display: flex;
   justify-content: center;
   flex-direction: column;
-  position: relative;
+  /* position: relative; */
   gap: 4px;
   margin-top: 0.75rem;
   ${({ today, displayFullEvent }) => {
@@ -946,7 +949,7 @@ const DayContainer = styled.div<{
   flex-direction: column;
   min-height: 40px;
   max-width: 30%;
-  position: relative;
+  /* position: relative; */
 
   /* 
   min-width: 50%; */
@@ -963,6 +966,7 @@ const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
   display: inline-block;
   width: 13.6%;
   text-align: center;
+  position: relative;
   /* margin-bottom: 30px; */
   font-size: 14px;
   /* cursor: pointer; */
