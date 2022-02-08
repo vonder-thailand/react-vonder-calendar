@@ -74,6 +74,7 @@ export type CalendarWeekDayProps = { children?: ReactNode };
 export type WeekDayItemProps = { children: ReactNode };
 export type DateEventProps = {
   renderEvent?: ({ events }: { events?: Events[] }) => void;
+  activeStyle?: React.CSSProperties;
 };
 export type RenderDayProps = {
   date: number;
@@ -575,238 +576,245 @@ const getBetweenDate = ({
   return isBetweenDate;
 };
 
-export const DateEvent = memo(({ renderEvent }: DateEventProps) => {
-  const {
-    renderDay,
-    displayFullEvent,
-    activeMonth,
-    activeYear,
-    setActiveDate,
-    activeDate,
-    eventLists,
-    goNextMonth,
-    goPreviousMonth,
-    direction,
-    calendarType,
-    goNextWeek,
-    goPreviousWeek,
-    disableSwipe,
-    fixWeek,
-  } = useCalendarContext();
-  const isFixWeek = fixWeek && calendarType === "week";
+export const DateEvent = memo(
+  ({ renderEvent, activeStyle }: DateEventProps) => {
+    const {
+      renderDay,
+      displayFullEvent,
+      activeMonth,
+      activeYear,
+      setActiveDate,
+      activeDate,
+      eventLists,
+      goNextMonth,
+      goPreviousMonth,
+      direction,
+      calendarType,
+      goNextWeek,
+      goPreviousWeek,
+      disableSwipe,
+      fixWeek,
+    } = useCalendarContext();
+    const isFixWeek = fixWeek && calendarType === "week";
 
-  const renderDate = useMemo(() => {
-    return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
-      const isActiveDate =
-        new Date(activeYear, activeMonth, activeDate).getTime() ===
-        new Date(fullDate).getTime();
+    const renderDate = useMemo(() => {
+      return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
+        const isActiveDate =
+          new Date(activeYear, activeMonth, activeDate).getTime() ===
+          new Date(fullDate).getTime();
 
-      const isActiveItem =
-        (activeDate === null && isToday) ||
-        (isActiveDate && activeDate !== null);
+        const isActiveItem =
+          (activeDate === null && isToday) ||
+          (isActiveDate && activeDate !== null);
 
-      return (
-        <DayItem
-          onClick={() => {
-            setActiveDate({
-              year: new Date(fullDate).getFullYear(),
-              month: new Date(fullDate).getMonth(),
-              date: new Date(fullDate).getDate(),
-            });
-            // if (onClick) {
-            //   onClick({
-            //     year: new Date(fullDate).getFullYear(),
-            //     month: new Date(fullDate).getMonth(),
-            //     date: new Date(fullDate).getDate(),
-            //   });
-            // }
-          }}
-          key={fullDate}
-          isCurrentMonth={currentMonth}
-        >
-          {!displayFullEvent || calendarType === "week" ? (
-            <DayContainer today={isToday} isActiveDate={isActiveItem}>
-              <TodayText>{date}</TodayText>
-              {isActiveItem && (
-                <ActiveItem
-                  layoutId="outline"
-                  initial={false}
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 30,
-                    delay: calendarType === "month" || isFixWeek ? 0 : 0.3,
-                  }}
-                />
-              )}
+        return (
+          <DayItem
+            onClick={() => {
+              setActiveDate({
+                year: new Date(fullDate).getFullYear(),
+                month: new Date(fullDate).getMonth(),
+                date: new Date(fullDate).getDate(),
+              });
+              // if (onClick) {
+              //   onClick({
+              //     year: new Date(fullDate).getFullYear(),
+              //     month: new Date(fullDate).getMonth(),
+              //     date: new Date(fullDate).getDate(),
+              //   });
+              // }
+            }}
+            key={fullDate}
+            isCurrentMonth={currentMonth}
+          >
+            {!displayFullEvent || calendarType === "week" ? (
+              <DayContainer today={isToday} isActiveDate={isActiveItem}>
+                <TodayText>{date}</TodayText>
+                {isActiveItem && (
+                  <ActiveItem
+                    style={{ ...activeStyle }}
+                    layoutId="outline"
+                    initial={false}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 30,
+                      delay: calendarType === "month" || isFixWeek ? 0 : 0.3,
+                    }}
+                  />
+                )}
 
-              {eventLists?.slice(0, 1)?.map((event: any) => {
-                const isBetweenDate = getBetweenDate({
-                  startDate: event?.startDate,
-                  endDate: event?.endDate,
-                  fullDate: fullDate,
-                });
+                {eventLists?.slice(0, 1)?.map((event: any) => {
+                  const isBetweenDate = getBetweenDate({
+                    startDate: event?.startDate,
+                    endDate: event?.endDate,
+                    fullDate: fullDate,
+                  });
 
-                if (isBetweenDate) {
-                  if (renderEvent) {
-                    return renderEvent({ events: event });
+                  if (isBetweenDate) {
+                    if (renderEvent) {
+                      return renderEvent({ events: event });
+                    }
+                    return (
+                      <EventBadge
+                        isToday={isToday}
+                        isActiveDate={isActiveItem}
+                        key={event?.title + new Date(event?.endDate)}
+                      />
+                    );
                   }
-                  return (
-                    <EventBadge
-                      isToday={isToday}
-                      isActiveDate={isActiveItem}
-                      key={event?.title + new Date(event?.endDate)}
-                    />
-                  );
-                }
-                return null;
-              })}
-            </DayContainer>
-          ) : (
-            <EventLabel
-              today={isToday}
-              isActiveDate={isActiveDate}
-              displayFullEvent={displayFullEvent}
-            >
-              <TodayText
+                  return null;
+                })}
+              </DayContainer>
+            ) : (
+              <EventLabel
                 today={isToday}
-                isActiveDate={isActiveItem}
+                isActiveDate={isActiveDate}
                 displayFullEvent={displayFullEvent}
               >
-                {date}
-              </TodayText>
-              {isActiveItem && (
-                <ActiveItemFullEvent
-                  layoutId="outline-full-event"
-                  initial={false}
-                  transition={{
-                    type: "spring",
-                    stiffness: 500,
-                    damping: 30,
-                    delay: calendarType === "month" ? 0 : 0.2,
-                  }}
-                />
-              )}
-              {eventLists?.slice(0, 2)?.map((event: any) => {
-                const isEventStartDate =
-                  new Date(event?.startDate).getDate() === date;
-                const isEventEndDate =
-                  new Date(event?.endDate).getDate() === date;
+                <TodayText
+                  today={isToday}
+                  isActiveDate={isActiveItem}
+                  displayFullEvent={displayFullEvent}
+                >
+                  {date}
+                </TodayText>
+                {isActiveItem && (
+                  <ActiveItemFullEvent
+                    layoutId="outline-full-event"
+                    initial={false}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 30,
+                      delay: calendarType === "month" ? 0 : 0.2,
+                    }}
+                    style={{ ...activeStyle }}
+                  />
+                )}
+                {eventLists?.slice(0, 2)?.map((event: any) => {
+                  const isEventStartDate =
+                    new Date(event?.startDate).getDate() === date;
+                  const isEventEndDate =
+                    new Date(event?.endDate).getDate() === date;
 
-                const isBetweenDate = getBetweenDate({
-                  startDate: event?.startDate,
-                  endDate: event?.endDate,
-                  fullDate: fullDate,
-                });
+                  const isBetweenDate = getBetweenDate({
+                    startDate: event?.startDate,
+                    endDate: event?.endDate,
+                    fullDate: fullDate,
+                  });
 
-                if (isBetweenDate) {
-                  if (renderEvent) {
-                    return renderEvent({ events: event });
+                  if (isBetweenDate) {
+                    if (renderEvent) {
+                      return renderEvent({ events: event });
+                    }
+                    return (
+                      <EventTitle
+                        key={event?.title + new Date(event?.endDate)}
+                        isEventStartDate={isEventStartDate}
+                        isEventEndDate={isEventEndDate}
+                        style={{ marginTop: "0.3rem" }}
+                      >
+                        {event?.title}
+                      </EventTitle>
+                    );
                   }
-                  return (
-                    <EventTitle
-                      key={event?.title + new Date(event?.endDate)}
-                      isEventStartDate={isEventStartDate}
-                      isEventEndDate={isEventEndDate}
-                      style={{ marginTop: "0.3rem" }}
-                    >
-                      {event?.title}
-                    </EventTitle>
-                  );
-                }
-                return null;
-              })}
-            </EventLabel>
-          )}
-        </DayItem>
-      );
-    });
-  }, [
-    renderDay,
-    activeYear,
-    activeMonth,
-    activeDate,
-    displayFullEvent,
-    calendarType,
-    isFixWeek,
-    eventLists,
-    setActiveDate,
-    renderEvent,
-  ]);
+                  return null;
+                })}
+              </EventLabel>
+            )}
+          </DayItem>
+        );
+      });
+    }, [
+      renderDay,
+      activeYear,
+      activeMonth,
+      activeDate,
+      displayFullEvent,
+      calendarType,
+      activeStyle,
+      isFixWeek,
+      eventLists,
+      setActiveDate,
+      renderEvent,
+    ]);
 
-  const swipeConfidenceThreshold = 10000;
-  const swipePower = (offset: number, velocity: number) => {
-    return Math.abs(offset) * velocity;
-  };
+    const swipeConfidenceThreshold = 10000;
+    const swipePower = (offset: number, velocity: number) => {
+      return Math.abs(offset) * velocity;
+    };
 
-  return (
-    <AnimateSharedLayout>
-      {isFixWeek ? (
-        <Days>{renderDate}</Days>
-      ) : (
-        <AnimatePresence initial={false} custom={direction}>
-          <motion.div
-            key={
-              calendarType === "month"
-                ? activeMonth + activeYear
-                : activeDate + activeMonth + activeYear
-            }
-            custom={direction}
-            variants={{
-              enter: (direction: number) => {
-                return {
-                  translateX: direction > 0 ? 1000 : -1000,
-                  opacity: 0,
-                  position: "absolute",
-                };
-              },
-              center: () => {
-                return {
-                  zIndex: 1,
-                  translateX: 0,
-                  opacity: 1,
-                  position: "relative",
-                  x: 0,
-                };
-              },
-              exit: (direction: number) => {
-                return {
-                  zIndex: 0,
-                  translateX: direction < 0 ? 1000 : -1000,
-
-                  opacity: 0,
-                  position: "absolute",
-                };
-              },
-            }}
-            initial="enter"
-            animate={"center"}
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              // opacity: { duration: 0.2 },
-              // position: { duration: 0 },
-            }}
-            drag={disableSwipe || isFixWeek ? undefined : "x"}
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0}
-            onDragEnd={(_, { offset, velocity }) => {
-              const swipe = swipePower(offset.x, velocity.x);
-
-              if (swipe < -swipeConfidenceThreshold) {
-                calendarType === "month" ? goNextMonth() : goNextWeek();
-              } else if (swipe > swipeConfidenceThreshold) {
-                calendarType === "month" ? goPreviousMonth() : goPreviousWeek();
+    return (
+      <AnimateSharedLayout>
+        {isFixWeek ? (
+          <Days>{renderDate}</Days>
+        ) : (
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={
+                calendarType === "month"
+                  ? activeMonth + activeYear
+                  : activeDate + activeMonth + activeYear
               }
-            }}
-          >
-            <Days>{renderDate}</Days>
-          </motion.div>
-        </AnimatePresence>
-      )}
-    </AnimateSharedLayout>
-  );
-});
+              custom={direction}
+              variants={{
+                enter: (direction: number) => {
+                  return {
+                    translateX: direction > 0 ? 1000 : -1000,
+                    opacity: 0,
+                    position: "absolute",
+                  };
+                },
+                center: () => {
+                  return {
+                    zIndex: 1,
+                    translateX: 0,
+                    opacity: 1,
+                    position: "relative",
+                    x: 0,
+                  };
+                },
+                exit: (direction: number) => {
+                  return {
+                    zIndex: 0,
+                    translateX: direction < 0 ? 1000 : -1000,
+
+                    opacity: 0,
+                    position: "absolute",
+                  };
+                },
+              }}
+              initial="enter"
+              animate={"center"}
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                // opacity: { duration: 0.2 },
+                // position: { duration: 0 },
+              }}
+              drag={disableSwipe || isFixWeek ? undefined : "x"}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0}
+              onDragEnd={(_, { offset, velocity }) => {
+                const swipe = swipePower(offset.x, velocity.x);
+
+                if (swipe < -swipeConfidenceThreshold) {
+                  calendarType === "month" ? goNextMonth() : goNextWeek();
+                } else if (swipe > swipeConfidenceThreshold) {
+                  calendarType === "month"
+                    ? goPreviousMonth()
+                    : goPreviousWeek();
+                }
+              }}
+            >
+              <Days>{renderDate}</Days>
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </AnimateSharedLayout>
+    );
+  }
+);
 
 const ActiveItem = styled(motion.div)`
   position: absolute;
@@ -814,7 +822,9 @@ const ActiveItem = styled(motion.div)`
   background-color: #6565f2;
   border-radius: 8px;
   width: 100%;
-  height: 50px;
+  min-height: 80%;
+  max-height: 80%;
+  /* height: 55px; */
   left: 0%;
   top: 0%;
   /* transform: translate(-50%, -50%); */
@@ -948,7 +958,7 @@ const DayContainer = styled.div<{
   display: flex;
   flex-direction: column;
   min-height: 40px;
-  max-width: 30%;
+  /* max-width: 30%; */
   /* position: relative; */
 
   /* 
