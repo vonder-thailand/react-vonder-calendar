@@ -20,7 +20,8 @@
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs",
     "prepublishOnly": "yarn build",
-    "build-publish": "yarn build && npm publish"
+    "build-publish": "yarn build && npm publish",
+    "test": "react-scripts test"
   },
   "eslintConfig": {
     "extends": "react-app"

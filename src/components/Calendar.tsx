@@ -87,7 +87,7 @@ export type Event = {
   title: string;
 };
 
-const chunk = (arr, size) =>
+export const chunk = (arr, size) =>
   arr.reduce(
     (acc, _, i) => (i % size ? acc : [...acc, arr.slice(i, i + size)]),
     []
@@ -99,7 +99,7 @@ const chunk = (arr, size) =>
  * @param {number} year -  year.
  * @returns The number of days in the month.
  */
-function daysInMonth(month: number, year: number) {
+export function daysInMonth(month: number, year: number) {
   return new Date(year, month + 1, 0).getDate();
 }
 
@@ -109,8 +109,11 @@ function daysInMonth(month: number, year: number) {
  * @param {number} startDateOfMonth - the first day of the month.
  * @returns The number of weeks in the month.
  */
-const getWeeksNumber = (todayDate: number, startDateOfMonth: number) => {
-  return Math.ceil((todayDate + startDateOfMonth) / NUMBER_OF_WEEK);
+export const getWeeksNumber = (
+  todayDate: number,
+  startIndexOfMonth: number
+) => {
+  return Math.ceil((todayDate + startIndexOfMonth) / NUMBER_OF_WEEK);
 };
 
 const DEFAULT_DATE = {
@@ -376,26 +379,9 @@ export default function Calendar({
       };
     });
 
-    // const getDateIndex = days?.findIndex(
-    //   (day) =>
-    //     new Date(day.fullDate).getTime() ===
-    //     new Date(activeYear, activeMonth, activeDate).getTime()
-    // );
-    const getWeek = chunk(days, 7)?.reduce((acc, current) => {
-      const findIndex = current?.find(
-        (day) =>
-          new Date(day.fullDate).getTime() ===
-          new Date(activeYear, activeMonth, activeDate).getTime()
-      );
-      if (findIndex) {
-        return (acc = current);
-      }
-      return acc;
-    }, []);
-    // console.log("getWeek ; ", getWeek);
+    const getWeekNumber = getWeeksNumber(activeDate, START_INDEX);
 
-    // const fix7dayWeek = days.slice(MAX_WEEK - 7, MAX_WEEK);
-    const get7DayOfWeek = getWeek;
+    const get7DayOfWeek = chunk(days, 7)[getWeekNumber - 1];
     return calendarType === "week" ? get7DayOfWeek : days;
   }, [
     MAX_COUNT_DATE,
