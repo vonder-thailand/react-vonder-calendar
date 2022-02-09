@@ -87,6 +87,12 @@ export type Event = {
   title: string;
 };
 
+const chunk = (arr, size) =>
+  arr.reduce(
+    (acc, _, i) => (i % size ? acc : [...acc, arr.slice(i, i + size)]),
+    []
+  );
+
 /**
  * Return the number of days in a month
  * @param {number} month -  month.
@@ -201,9 +207,8 @@ export default function Calendar({
     if (onClick) {
       onClick({
         activeDate:
-          new Date().getMonth() === activeMonth &&
-          new Date().getFullYear() === activeYear
-            ? new Date().getDate()
+          DEFAULT_DATE.month === activeMonth && DEFAULT_DATE.year === activeYear
+            ? DEFAULT_DATE.date
             : activeDate,
         activeMonth: activeMonth,
         activeYear: activeYear,
@@ -277,21 +282,20 @@ export default function Calendar({
 
   const getCurrentDate = useMemo(() => {
     const TODAY =
-      activeYear === new Date().getFullYear() &&
-      activeMonth === new Date().getMonth()
-        ? new Date().getDate()
+      activeYear === DEFAULT_DATE.year && activeMonth === DEFAULT_DATE.month
+        ? DEFAULT_DATE.date
         : "";
 
     const PREV_YEAR = activeYear - 1;
     const PREV_MONTH = activeMonth === 0 ? 11 : activeMonth - 1;
-    const START_INDEX = new Date().getDay();
+    const START_INDEX = new Date(activeYear, activeMonth).getDay();
 
     return {
       TODAY,
       PREV_YEAR,
       PREV_MONTH,
       PREV_MAX_DATE: daysInMonth(PREV_MONTH, PREV_YEAR),
-      MAX_COUNT_DATE: activeMonth === 1 ? 35 : 42, //7 in row ,6 row,
+      MAX_COUNT_DATE: 42, //7 in row ,6 row,
       MAX_DATE: daysInMonth(activeMonth, activeYear),
       START_INDEX,
       MAX_WEEK: getWeeksNumber(+TODAY, START_INDEX) * NUMBER_OF_WEEK,
@@ -301,12 +305,10 @@ export default function Calendar({
   const {
     TODAY,
     PREV_MAX_DATE,
-    // PREV_MONTH,
-    // PREV_YEAR,
     MAX_DATE,
     MAX_COUNT_DATE,
     START_INDEX,
-    MAX_WEEK,
+    // MAX_WEEK,
   } = getCurrentDate;
 
   const goNextWeek = useCallback(() => {
@@ -374,21 +376,29 @@ export default function Calendar({
       };
     });
 
-    const getDateIndex = days?.findIndex(
-      (day) =>
-        new Date(day.fullDate).getTime() ===
-        new Date(activeYear, activeMonth, activeDate).getTime()
-    );
+    // const getDateIndex = days?.findIndex(
+    //   (day) =>
+    //     new Date(day.fullDate).getTime() ===
+    //     new Date(activeYear, activeMonth, activeDate).getTime()
+    // );
+    const getWeek = chunk(days, 7)?.reduce((acc, current) => {
+      const findIndex = current?.find(
+        (day) =>
+          new Date(day.fullDate).getTime() ===
+          new Date(activeYear, activeMonth, activeDate).getTime()
+      );
+      if (findIndex) {
+        return (acc = current);
+      }
+      return acc;
+    }, []);
+    // console.log("getWeek ; ", getWeek);
 
-    const fix7dayWeek = days.slice(MAX_WEEK - 7, MAX_WEEK);
-    const get7DayOfWeek = fixWeek
-      ? fix7dayWeek
-      : days.slice(getDateIndex - 3, getDateIndex + 4);
+    // const fix7dayWeek = days.slice(MAX_WEEK - 7, MAX_WEEK);
+    const get7DayOfWeek = getWeek;
     return calendarType === "week" ? get7DayOfWeek : days;
   }, [
     MAX_COUNT_DATE,
-    MAX_WEEK,
-    fixWeek,
     calendarType,
     START_INDEX,
     MAX_DATE,
@@ -827,33 +837,6 @@ const ActiveItem = styled(motion.div)`
   /* height: 55px; */
   left: 0%;
   top: 0%;
-  /* transform: translate(-50%, -50%); */
-  /* @media only screen and (min-width: 379px) and (max-width: 461px) {
-    position: absolute;
-    left: 0%;
-    top: 0%;
-    background-color: #6565f2;
-    border-radius: 8px;
-    width: 50px;
-    height: 50px;
-  }
-  @media only screen and (min-width: 463px) and (max-width: 820px) {
-    position: absolute;
-    left: 10%;
-    background-color: #6565f2;
-    border-radius: 8px;
-    width: 50px;
-    height: 50px;
-  }
-
-  @media only screen and (max-width: 381px) {
-    position: absolute;
-    left: 0%;
-    background-color: #6565f2;
-    border-radius: 8px;
-    width: 50px;
-    height: 50px;
-  } */
 `;
 
 const ActiveItemFullEvent = styled(motion.div)`
