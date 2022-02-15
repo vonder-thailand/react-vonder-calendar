@@ -144,9 +144,9 @@ type ContextProps = {
   fixWeek?: boolean;
 };
 
-const CalendarContext = createContext<ContextProps | null>(null);
+export const CalendarContext = createContext<ContextProps | null>(null);
 
-function useCalendarContext() {
+export function useCalendarContext() {
   const context = useContext(CalendarContext);
   if (!context) {
     throw new Error(
@@ -605,19 +605,13 @@ export const DateEvent = memo(
 
         return (
           <DayItem
+            data-testid="day-item"
             onClick={() => {
               setActiveDate({
                 year: new Date(fullDate).getFullYear(),
                 month: new Date(fullDate).getMonth(),
                 date: new Date(fullDate).getDate(),
               });
-              // if (onClick) {
-              //   onClick({
-              //     year: new Date(fullDate).getFullYear(),
-              //     month: new Date(fullDate).getMonth(),
-              //     date: new Date(fullDate).getDate(),
-              //   });
-              // }
             }}
             key={fullDate}
             isCurrentMonth={currentMonth}
