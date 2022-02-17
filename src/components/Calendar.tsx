@@ -185,7 +185,7 @@ export default function Calendar({
   currentDate,
   eventLists,
   displayFullEvent,
-  type = "month",
+  type,
   locale = "TH",
   disableSwipe,
   fixWeek,

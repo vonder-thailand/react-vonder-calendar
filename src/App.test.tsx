@@ -7,7 +7,7 @@ import Calendar, {
   daysInMonth,
   getWeeksNumber,
 } from "./components/Calendar";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 test("chunk array function", () => {
@@ -341,5 +341,31 @@ describe("test calendar context", () => {
     const lastDateOfMar = allDate?.[allDate.length - 1].textContent;
     expect(firstDateOfMar).toEqual("30");
     expect(lastDateOfMar).toEqual("9");
+  });
+});
+
+describe("test render calendar", () => {
+  it("render type week 7 days", async () => {
+    const wrapper = ({ children }) => (
+      <Calendar type="week">{children}</Calendar>
+    );
+
+    render(<DateEvent />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId("day-item")).toHaveLength(7);
+    });
+  });
+
+  it("render type week 42 days", async () => {
+    const wrapper = ({ children }) => (
+      <Calendar type="month">{children}</Calendar>
+    );
+
+    render(<DateEvent />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId("day-item")).toHaveLength(42);
+    });
   });
 });
