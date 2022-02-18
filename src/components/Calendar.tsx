@@ -142,6 +142,7 @@ type ContextProps = {
   direction: number;
   disableSwipe?: boolean;
   fixWeek?: boolean;
+  onClick?: (date: any) => void;
 };
 
 export const CalendarContext = createContext<ContextProps | null>(null);
@@ -206,18 +207,19 @@ export default function Calendar({
     }
   }, [type]);
 
-  useEffect(() => {
-    if (onClick) {
-      onClick({
-        activeDate:
-          DEFAULT_DATE.month === activeMonth && DEFAULT_DATE.year === activeYear
-            ? DEFAULT_DATE.date
-            : activeDate,
-        activeMonth: activeMonth,
-        activeYear: activeYear,
-      });
-    }
-  }, [activeDate, activeMonth, activeYear, onClick]);
+  // useEffect(() => {
+  //   if (onClick) {
+  //     onClick({
+  //       activeDate:
+  //         DEFAULT_DATE.month === activeMonth && DEFAULT_DATE.year === activeYear
+  //           ? DEFAULT_DATE.date
+  //           : activeDate,
+  //       activeMonth: activeMonth,
+  //       activeYear: activeYear,
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [activeDate, activeMonth, activeYear]);
 
   useEffect(() => {
     if (fixWeek && type === "month") {
@@ -416,6 +418,7 @@ export default function Calendar({
       direction,
       disableSwipe,
       fixWeek,
+      onClick,
     };
   }, [
     fixWeek,
@@ -435,6 +438,7 @@ export default function Calendar({
     goNextWeek,
     goPreviousWeek,
     direction,
+    onClick,
   ]);
 
   return (
@@ -590,6 +594,7 @@ export const DateEvent = memo(
       goPreviousWeek,
       disableSwipe,
       fixWeek,
+      onClick,
     } = useCalendarContext();
     const isFixWeek = fixWeek && calendarType === "week";
 
@@ -603,15 +608,29 @@ export const DateEvent = memo(
           (activeDate === null && isToday) ||
           (isActiveDate && activeDate !== null);
 
+        const selectedYear = new Date(fullDate).getFullYear();
+        const selectedMonth = new Date(fullDate).getMonth();
+        const selectedDate = new Date(fullDate).getDate();
+
         return (
           <DayItem
             data-testid="day-item"
             onClick={() => {
               setActiveDate({
-                year: new Date(fullDate).getFullYear(),
-                month: new Date(fullDate).getMonth(),
-                date: new Date(fullDate).getDate(),
+                year: selectedYear,
+                month: selectedMonth,
+                date: selectedDate,
               });
+              onClick &&
+                onClick({
+                  activeDate:
+                    DEFAULT_DATE.month === selectedDate &&
+                    DEFAULT_DATE.year === selectedYear
+                      ? DEFAULT_DATE.date
+                      : selectedDate,
+                  activeMonth: selectedMonth,
+                  activeYear: selectedYear,
+                });
             }}
             key={fullDate}
             isCurrentMonth={currentMonth}
@@ -726,6 +745,7 @@ export const DateEvent = memo(
       isFixWeek,
       eventLists,
       setActiveDate,
+      onClick,
       renderEvent,
     ]);
 

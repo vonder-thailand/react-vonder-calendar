@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
 import Calendar, {
   CalendarControlButton,
@@ -9,14 +9,17 @@ import Calendar, {
 } from "./components/Calendar";
 
 function App() {
+  const [date, setDate] = useState();
+  console.log("date2 ; ", date);
   return (
     <div className="App" style={{ margin: "0 auto", padding: "1rem" }}>
       <Calendar
-        type="week"
+        type="month"
         // currentDate={new Date(2022, 1, 10)}
         // displayFullEvent={true}
         onClick={(date) => {
           console.log("date :", date);
+          setDate(date);
         }}
         fixWeek
         // disableSwipe
