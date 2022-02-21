@@ -61,6 +61,9 @@ export type CalendarHeaderButtonPropsChildrenProps = {
   activeYear?: number;
   activeMonth?: number;
   currentDate?: string;
+  goNextMonth: () => void;
+  goPreviousMonth: () => void;
+  goToDay: () => void;
 };
 
 export type CalendarHeaderButtonProps = {
@@ -504,7 +507,14 @@ export const CalendarControlButton = memo(
 
 export const CalendarHeader = memo(
   ({ children }: CalendarHeaderButtonProps) => {
-    const { activeYear, activeMonth, locale } = useCalendarContext();
+    const {
+      activeYear,
+      activeMonth,
+      locale,
+      goNextMonth,
+      goPreviousMonth,
+      goToDay,
+    } = useCalendarContext();
     const currentDate = new Date()
       .toLocaleDateString(locale || "en-US", {
         day: "numeric",
@@ -518,6 +528,9 @@ export const CalendarHeader = memo(
         activeYear: activeYear,
         activeMonth: activeMonth,
         currentDate: currentDate,
+        goNextMonth: goNextMonth,
+        goPreviousMonth: goPreviousMonth,
+        goToDay: goToDay,
       });
     }
     return (

@@ -48,7 +48,15 @@ function App() {
         > */}
         <CalendarControlButton />
         <CalendarHeader>
-          {({ currentDate }) => {
+          {({
+            currentDate,
+            goNextMonth,
+            activeMonth,
+            activeYear,
+            goPreviousMonth,
+          }) => {
+            console.log("activeYear : ", activeYear);
+            console.log("activeMonth :", activeMonth);
             return (
               <div
                 style={{
@@ -59,14 +67,16 @@ function App() {
                   textIndent: "1.25rem",
                 }}
               >
+                <button onClick={() => goPreviousMonth()}>back</button>
                 <h3
+                  onClick={() => goNextMonth!()}
                   style={{
                     fontSize: "20px",
                     color: "#3E4357",
                     marginBottom: "0",
                   }}
                 >
-                  {currentDate}
+                  {currentDate} {activeMonth} {activeYear}
                 </h3>
                 <h4 style={{ margin: "0", fontWeight: 400, color: "#6E7282" }}>
                   ขอให้เป็นวันที่ดี 😆
