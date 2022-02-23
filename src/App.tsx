@@ -48,13 +48,7 @@ function App() {
         > */}
         <CalendarControlButton />
         <CalendarHeader>
-          {({
-            currentDate,
-            goNextMonth,
-            activeMonth,
-            activeYear,
-            goPreviousMonth,
-          }) => {
+          {({ currentDate, goNextMonth, activeMonth, activeYear, goToDay }) => {
             console.log("activeYear : ", activeYear);
             console.log("activeMonth :", activeMonth);
             return (
@@ -67,7 +61,7 @@ function App() {
                   textIndent: "1.25rem",
                 }}
               >
-                <button onClick={() => goPreviousMonth()}>back</button>
+                <button onClick={() => goToDay()}>back</button>
                 <h3
                   onClick={() => goNextMonth!()}
                   style={{
@@ -89,11 +83,13 @@ function App() {
           style={{
             background: "white",
             borderRadius: "12px",
-            padding: "1.5rem 0.5rem 0rem 0.5rem",
           }}
         >
           <CalendarWeekDay />
-          <DateEvent />
+          <DateEvent
+          
+          
+          />
         </div>
         {/* </div> */}
         {/* <CalendarControlButton /> */}

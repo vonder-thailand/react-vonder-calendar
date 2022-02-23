@@ -74,10 +74,14 @@ export type CalendarHeaderButtonProps = {
   // children?: any;
 };
 export type CalendarWeekDayProps = { children?: ReactNode };
-export type WeekDayItemProps = { children: ReactNode };
+export type WeekDayItemProps = {
+  children: ReactNode;
+  style?: React.CSSProperties;
+};
 export type DateEventProps = {
   renderEvent?: ({ events }: { events?: Events[] }) => void;
   activeStyle?: React.CSSProperties;
+  todayStyle?: React.CSSProperties;
 };
 export type RenderDayProps = {
   date: number;
@@ -563,9 +567,9 @@ export const CalendarWeekDay = ({ children }: CalendarWeekDayProps) => {
   return null;
 };
 
-export const WeekDayItem = ({ children }: WeekDayItemProps) => {
+export const WeekDayItem = ({ children, style }: WeekDayItemProps) => {
   useCalendarContext();
-  return <li>{children}</li>;
+  return <li style={{ ...style }}>{children}</li>;
 };
 CalendarWeekDay.Item = WeekDayItem;
 CalendarWeekDay.displayName = "CalendarWeekDay";
@@ -650,7 +654,7 @@ export const DateEvent = memo(
           >
             {!displayFullEvent || calendarType === "week" ? (
               <DayContainer today={isToday} isActiveDate={isActiveItem}>
-                <TodayText>{date}</TodayText>
+                <TodayText >{date}</TodayText>
                 {isActiveItem && (
                   <ActiveItem
                     style={{ ...activeStyle }}
@@ -747,20 +751,7 @@ export const DateEvent = memo(
           </DayItem>
         );
       });
-    }, [
-      renderDay,
-      activeYear,
-      activeMonth,
-      activeDate,
-      displayFullEvent,
-      calendarType,
-      activeStyle,
-      isFixWeek,
-      eventLists,
-      setActiveDate,
-      onClick,
-      renderEvent,
-    ]);
+    }, [renderDay, activeYear, activeMonth, activeDate, displayFullEvent, calendarType, activeStyle, isFixWeek, eventLists, setActiveDate, onClick, renderEvent]);
 
     const swipeConfidenceThreshold = 10000;
     const swipePower = (offset: number, velocity: number) => {
@@ -842,7 +833,7 @@ export const DateEvent = memo(
 const ActiveItem = styled(motion.div)`
   position: absolute;
 
-  background-color: #6565f2;
+  background-color: #56a0ef;
   border-radius: 8px;
   width: 100%;
   min-height: 80%;
@@ -856,7 +847,7 @@ const ActiveItemFullEvent = styled(motion.div)`
   position: absolute;
   left: 5%;
   top: 14%;
-  background-color: #6565f2;
+  background-color: #56a0ef;
   border-radius: 8px;
   width: 100%;
   max-width: 90%;
@@ -916,7 +907,7 @@ const getActiveDate = css`
       return css`
         padding-bottom: ${"15px"};
         font-weight: 700;
-        color: #6565f2;
+        color: #287fde;
         padding: ${displayFullEvent ? "10px" : "0 1rem"};
       `;
     }
