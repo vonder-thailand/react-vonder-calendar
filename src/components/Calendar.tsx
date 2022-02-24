@@ -585,11 +585,13 @@ const getBetweenDate = ({
 }) => {
   const todayDate = new Date(fullDate);
 
-  const firstDate = new Date(startDate);
-  const secondDate = new Date(endDate);
+  const firstDate = new Date(startDate).setHours(0);
+  const secondDate = new Date(endDate).setHours(0);
+
   const isBetweenDate =
-    firstDate.getTime() <= todayDate.getTime() &&
-    todayDate.getTime() <= secondDate.getTime();
+    todayDate >= new Date(firstDate) && todayDate <= new Date(secondDate);
+  // firstDate.getTime() <= todayDate.getTime() &&
+  // todayDate.getTime() <= secondDate.getTime();
   return isBetweenDate;
 };
 
@@ -614,8 +616,6 @@ export const DateEvent = memo(
       onClick,
     } = useCalendarContext();
     const isFixWeek = fixWeek && calendarType === "week";
-    
-    console.log('eventLists : ',eventLists)
 
     const renderDate = useMemo(() => {
       return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
@@ -630,6 +630,15 @@ export const DateEvent = memo(
         const selectedYear = new Date(fullDate).getFullYear();
         const selectedMonth = new Date(fullDate).getMonth();
         const selectedDate = new Date(fullDate).getDate();
+
+        const removeDuplicateEvent = eventLists?.reduce((arr: any, item: any) => {
+          const removed = arr.filter(
+            (i: any) =>
+              new Date(i["startDate"]).getDate() !==
+              new Date(item["startDate"]).getDate()
+          );
+          return [...removed, item];
+        }, []);
 
         return (
           <DayItem
@@ -656,7 +665,7 @@ export const DateEvent = memo(
           >
             {!displayFullEvent || calendarType === "week" ? (
               <DayContainer today={isToday} isActiveDate={isActiveItem}>
-                <TodayText >{date}</TodayText>
+                <TodayText>{date}</TodayText>
                 {isActiveItem && (
                   <ActiveItem
                     style={{ ...activeStyle }}
@@ -671,12 +680,13 @@ export const DateEvent = memo(
                   />
                 )}
 
-                {eventLists?.map((event: any) => {
+                {removeDuplicateEvent?.map((event: any) => {
                   const isBetweenDate = getBetweenDate({
                     startDate: event?.startDate,
                     endDate: event?.endDate,
                     fullDate: fullDate,
                   });
+                  // console.log('isBetweenDate : ',isBetweenDate)
 
                   if (isBetweenDate) {
                     if (renderEvent) {
@@ -753,7 +763,20 @@ export const DateEvent = memo(
           </DayItem>
         );
       });
-    }, [renderDay, activeYear, activeMonth, activeDate, displayFullEvent, calendarType, activeStyle, isFixWeek, eventLists, setActiveDate, onClick, renderEvent]);
+    }, [
+      renderDay,
+      activeYear,
+      activeMonth,
+      activeDate,
+      displayFullEvent,
+      calendarType,
+      activeStyle,
+      isFixWeek,
+      eventLists,
+      setActiveDate,
+      onClick,
+      renderEvent,
+    ]);
 
     const swipeConfidenceThreshold = 10000;
     const swipePower = (offset: number, velocity: number) => {

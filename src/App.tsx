@@ -11,6 +11,22 @@ import Calendar, {
 function App() {
   const [date, setDate] = useState();
   console.log("date2 ; ", date);
+
+  const MOCK = [
+    1644969600000, 1644987600000, 1645365600000, 1645416000000, 1645430400000,
+    1645434000000, 1645452000000, 1645657200000, 1645696800000, 1645704000000,
+  ];
+
+  const test = MOCK.map((date, index) => {
+    return {
+      id: index,
+      startDate: new Date(date),
+      endDate: new Date(date),
+      title: "test",
+    };
+  });
+  console.log("test ::: ", test);
+
   return (
     <div className="App" style={{ margin: "0 auto", padding: "1rem" }}>
       <Calendar
@@ -23,26 +39,7 @@ function App() {
         }}
         fixWeek
         // disableSwipe
-        eventLists={[
-          {
-            id: 2,
-            startDate: new Date(2022, 1, 10),
-            endDate: new Date(2022, 1, 10),
-            title: "test",
-          },
-          {
-            id: 3,
-            startDate: new Date(2022, 1, 21),
-            endDate: new Date(2022, 1, 21),
-            title: "Meeting",
-          },
-          {
-            id: 3,
-            startDate: new Date(2022, 1, 25),
-            endDate: new Date(2022, 1, 25),
-            title: "Meeting",
-          },
-        ]}
+        eventLists={test}
       >
         {/* <div
           style={{
