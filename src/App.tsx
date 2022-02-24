@@ -25,16 +25,22 @@ function App() {
         // disableSwipe
         eventLists={[
           {
-            id: 1,
-            startDate: new Date(2022, 1, 1),
-            endDate: new Date(2022, 1, 7),
+            id: 2,
+            startDate: new Date(2022, 1, 10),
+            endDate: new Date(2022, 1, 10),
+            title: "test",
+          },
+          {
+            id: 3,
+            startDate: new Date(2022, 1, 21),
+            endDate: new Date(2022, 1, 21),
             title: "Meeting",
           },
           {
-            id: 2,
-            startDate: new Date(2022, 1, 3),
-            endDate: new Date(2022, 1, 3),
-            title: "xxxxxxx",
+            id: 3,
+            startDate: new Date(2022, 1, 25),
+            endDate: new Date(2022, 1, 25),
+            title: "Meeting",
           },
         ]}
       >
@@ -86,10 +92,7 @@ function App() {
           }}
         >
           <CalendarWeekDay />
-          <DateEvent
-          
-          
-          />
+          <DateEvent />
         </div>
         {/* </div> */}
         {/* <CalendarControlButton /> */}

@@ -614,6 +614,8 @@ export const DateEvent = memo(
       onClick,
     } = useCalendarContext();
     const isFixWeek = fixWeek && calendarType === "week";
+    
+    console.log('eventLists : ',eventLists)
 
     const renderDate = useMemo(() => {
       return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
@@ -669,7 +671,7 @@ export const DateEvent = memo(
                   />
                 )}
 
-                {eventLists?.slice(0, 1)?.map((event: any) => {
+                {eventLists?.map((event: any) => {
                   const isBetweenDate = getBetweenDate({
                     startDate: event?.startDate,
                     endDate: event?.endDate,
