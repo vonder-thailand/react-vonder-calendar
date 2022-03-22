@@ -583,16 +583,39 @@ const getBetweenDate = ({
   endDate: number;
   fullDate: Date;
 }) => {
-  const todayDate = new Date(fullDate);
+  // console.log(
+  //   "check :::",
+  //   new Date(fullDate).setHours(0, 0, 0, 0) ===
+  //     new Date(startDate).setHours(0, 0, 0, 0)
+  // );
+  // const todayDate = new Date(fullDate).getDate();
+  // const getMonth = new Date(fullDate).getMonth();
+  // const getYear = new Date(fullDate).getFullYear();
 
-  const firstDate = new Date(startDate).setHours(0);
-  const secondDate = new Date(endDate).setHours(0);
+  // const firstDate = new Date(startDate).getDate();
+  // const secondDate = new Date(endDate).getDate();
+  // const startDateMonth = new Date(startDate).getMonth();
+  // const endDateMonth = new Date(endDate).getMonth();
+  // const startDateYear = new Date(startDate).getFullYear();
+  // const endDateYear = new Date(endDate).getFullYear();
+  return (
+    new Date(fullDate).setHours(0, 0, 0, 0) ===
+      new Date(startDate).setHours(0, 0, 0, 0) &&
+    new Date(fullDate).setHours(0, 0, 0, 0) ===
+      new Date(endDate).setHours(0, 0, 0, 0)
+  );
+  // if (
+  //   getMonth === startDateMonth &&
+  //   getMonth === endDateMonth &&
+  //   todayDate === firstDate &&
+  //   todayDate === secondDate &&
+  //   getYear === startDateYear &&
+  //   getYear === endDateYear
+  // ) {
+  //   return true;
+  // }
 
-  const isBetweenDate =
-    todayDate >= new Date(firstDate) && todayDate <= new Date(secondDate);
-  // firstDate.getTime() <= todayDate.getTime() &&
-  // todayDate.getTime() <= secondDate.getTime();
-  return isBetweenDate;
+  // return false;
 };
 
 export const DateEvent = memo(
@@ -631,14 +654,18 @@ export const DateEvent = memo(
         const selectedMonth = new Date(fullDate).getMonth();
         const selectedDate = new Date(fullDate).getDate();
 
-        const removeDuplicateEvent = eventLists?.reduce((arr: any, item: any) => {
-          const removed = arr.filter(
-            (i: any) =>
-              new Date(i["startDate"]).getDate() !==
-              new Date(item["startDate"]).getDate()
-          );
-          return [...removed, item];
-        }, []);
+        const removeDuplicateEvent = eventLists?.reduce(
+          (arr: any, item: any) => {
+            const removed = arr.filter(
+              (i: any) =>
+                new Date(i["startDate"]).getDate() !==
+                new Date(item["startDate"]).getDate()
+            );
+            return [...removed, item];
+          },
+          []
+        );
+        // console.log("removeDuplicateEvent : ", removeDuplicateEvent);
 
         return (
           <DayItem
@@ -686,7 +713,6 @@ export const DateEvent = memo(
                     endDate: event?.endDate,
                     fullDate: fullDate,
                   });
-                  // console.log('isBetweenDate : ',isBetweenDate)
 
                   if (isBetweenDate) {
                     if (renderEvent) {

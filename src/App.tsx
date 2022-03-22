@@ -9,14 +9,9 @@ import Calendar, {
 } from "./components/Calendar";
 
 function App() {
-  const [date, setDate] = useState();
-  console.log("date2 ; ", date);
+  const [, setDate] = useState();
 
-  const MOCK = [
-    1644969600000, 1644987600000, 1645365600000, 1645416000000, 1645430400000,
-    1645434000000, 1645452000000, 1645657200000, 1645696800000, 1645704000000,
-  ];
-
+  const MOCK = [1647936114893, 1647388800000, 1647561600000, 1647561600000];
   const test = MOCK.map((date, index) => {
     return {
       id: index,
@@ -25,7 +20,6 @@ function App() {
       title: "test",
     };
   });
-  console.log("test ::: ", test);
 
   return (
     <div className="App" style={{ margin: "0 auto", padding: "1rem" }}>
