@@ -679,10 +679,7 @@ export const DateEvent = memo(
               onClick &&
                 onClick({
                   activeDate:
-                    DEFAULT_DATE.month === selectedDate &&
-                    DEFAULT_DATE.year === selectedYear
-                      ? DEFAULT_DATE.date
-                      : selectedDate,
+                  selectedDate,
                   activeMonth: selectedMonth,
                   activeYear: selectedYear,
                 });
