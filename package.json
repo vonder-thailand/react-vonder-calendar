@@ -1,6 +1,6 @@
 {
   "name": "react-vonder-calendar",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "minnyppp",
   "description": "React Vonder Component with compound component pattern",
   "main": "./lib/cjs/components/Calendar.js",
@@ -48,7 +48,7 @@
     "@types/node": "^17.0.10",
     "@types/react": "^17.0.8",
     "@types/react-dom": "^17.0.0",
-    "framer-motion": "^6.2.3",
+    "framer-motion": "^6.3.3",
     "react-scripts": "^5.0.0",
     "styled-components": "^5.3.3",
     "web-vitals": "^2.1.4"

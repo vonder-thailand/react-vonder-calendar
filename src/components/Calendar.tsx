@@ -12,7 +12,7 @@ import React, {
 import styled, { css } from "styled-components";
 // import GlobalStyles from "./GlobalStyles";
 // import "./index.css";
-const { AnimatePresence, AnimateSharedLayout, motion } = Framer;
+const { AnimatePresence, motion } = Framer;
 
 const NUMBER_OF_WEEK = 7;
 
@@ -256,6 +256,7 @@ export default function Calendar({
     setType((prev) => (prev === "month" ? "week" : "month"));
   }, []);
 
+
   const goNextMonth = useCallback(() => {
     setDirection(1);
     setActiveDate((prev: any) => {
@@ -289,6 +290,7 @@ export default function Calendar({
   }, []);
 
   const goToDay = useCallback(() => {
+    setDirection(prev => prev < 0 ? 1 : -1)
     setActiveDate(DEFAULT_DATE);
   }, []);
 
@@ -600,9 +602,9 @@ const getBetweenDate = ({
   // const endDateYear = new Date(endDate).getFullYear();
   return (
     new Date(fullDate).setHours(0, 0, 0, 0) ===
-      new Date(startDate).setHours(0, 0, 0, 0) &&
+    new Date(startDate).setHours(0, 0, 0, 0) &&
     new Date(fullDate).setHours(0, 0, 0, 0) ===
-      new Date(endDate).setHours(0, 0, 0, 0)
+    new Date(endDate).setHours(0, 0, 0, 0)
   );
   // if (
   //   getMonth === startDateMonth &&
@@ -678,8 +680,7 @@ export const DateEvent = memo(
               });
               onClick &&
                 onClick({
-                  activeDate:
-                  selectedDate,
+                  activeDate: selectedDate,
                   activeMonth: selectedMonth,
                   activeYear: selectedYear,
                 });
@@ -806,8 +807,9 @@ export const DateEvent = memo(
       return Math.abs(offset) * velocity;
     };
 
+
     return (
-      <AnimateSharedLayout>
+      <Framer.LayoutGroup id="calendar">
         {isFixWeek ? (
           <Days>{renderDate}</Days>
         ) : (
@@ -873,7 +875,7 @@ export const DateEvent = memo(
             </motion.div>
           </AnimatePresence>
         )}
-      </AnimateSharedLayout>
+      </Framer.LayoutGroup>
     );
   }
 );
