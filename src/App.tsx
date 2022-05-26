@@ -31,6 +31,9 @@ function App() {
           console.log("date :", date);
           setDate(date);
         }}
+        onDateChange={(date) => {
+          console.log('data : ', date)
+        }}
         fixWeek
         // disableSwipe
         eventLists={test}

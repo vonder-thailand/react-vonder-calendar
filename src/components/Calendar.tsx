@@ -36,6 +36,7 @@ export type CalendarProps = {
   disableSwipe?: boolean;
   fixWeek?: boolean;
   onClick?: (date: any) => void;
+  onDateChange?: (date: any) => void
 };
 
 export type CalendarControlButtonPropsChildrenProps = {
@@ -198,6 +199,7 @@ export default function Calendar({
   disableSwipe,
   fixWeek,
   onClick,
+  onDateChange
 }: CalendarProps) {
   // const FIX_WEEK = true;
 
@@ -213,6 +215,16 @@ export default function Calendar({
       setType(type);
     }
   }, [type]);
+
+  useEffect(() => {
+    if (onDateChange) {
+      onDateChange({
+        activeYear: activeYear,
+        activeMonth: activeMonth,
+        activeDate: activeDate
+      })
+    }
+  }, [activeDate, activeMonth, activeYear, onDateChange])
 
   // useEffect(() => {
   //   if (onClick) {
@@ -428,8 +440,10 @@ export default function Calendar({
       disableSwipe,
       fixWeek,
       onClick,
+      onDateChange
     };
   }, [
+    onDateChange,
     fixWeek,
     disableSwipe,
     goNextMonth,
