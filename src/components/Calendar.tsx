@@ -37,6 +37,7 @@ export type CalendarProps = {
   fixWeek?: boolean;
   onClick?: (date: any) => void;
   onDateChange?: (date: any) => void
+  onSwipe?: (date: any) => void
 };
 
 export type CalendarControlButtonPropsChildrenProps = {
@@ -151,6 +152,7 @@ type ContextProps = {
   disableSwipe?: boolean;
   fixWeek?: boolean;
   onClick?: (date: any) => void;
+  onSwipe?: (date: any) => void
 };
 
 export const CalendarContext = createContext<ContextProps | null>(null);
@@ -199,7 +201,8 @@ export default function Calendar({
   disableSwipe,
   fixWeek,
   onClick,
-  onDateChange
+  onDateChange,
+  onSwipe
 }: CalendarProps) {
   // const FIX_WEEK = true;
 
@@ -440,9 +443,11 @@ export default function Calendar({
       disableSwipe,
       fixWeek,
       onClick,
-      onDateChange
+      onDateChange,
+      onSwipe
     };
   }, [
+    onSwipe,
     onDateChange,
     fixWeek,
     disableSwipe,
@@ -653,6 +658,7 @@ export const DateEvent = memo(
       disableSwipe,
       fixWeek,
       onClick,
+      onSwipe
     } = useCalendarContext();
     const isFixWeek = fixWeek && calendarType === "week";
 
@@ -878,10 +884,12 @@ export const DateEvent = memo(
 
                 if (swipe < -swipeConfidenceThreshold) {
                   calendarType === "month" ? goNextMonth() : goNextWeek();
+                  onSwipe && onSwipe({ activeYear, activeMonth, activeDate, direction: 'next' })
                 } else if (swipe > swipeConfidenceThreshold) {
                   calendarType === "month"
                     ? goPreviousMonth()
                     : goPreviousWeek();
+                  onSwipe && onSwipe({ activeYear, activeMonth, activeDate, direction: 'previous' })
                 }
               }}
             >
