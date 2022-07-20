@@ -25,6 +25,7 @@ function App() {
     <div className="App" style={{ margin: "0 auto", padding: "1rem" }}>
       <Calendar
         type="month"
+        locale="TH"
         // currentDate={new Date(2022, 1, 10)}
         // displayFullEvent={true}
         onClick={(date) => {

@@ -170,24 +170,31 @@ export function useCalendarContext() {
 const MONTH_LIST = [
   {
     name: "Su",
+    nameTH: "อา"
   },
   {
     name: "Mo",
+    nameTH: "จ"
   },
   {
     name: "Tu",
+    nameTH: "อ"
   },
   {
     name: "We",
+    nameTH: "พ"
   },
   {
     name: "Th",
+    nameTH: "พฤ"
   },
   {
     name: "Fr",
+    nameTH: "ศ"
   },
   {
     name: "Sa",
+    nameTH: "ส"
   },
 ];
 
@@ -549,6 +556,8 @@ export const CalendarHeader = memo(
       .split(" ")
       .join(" ");
     if (children) {
+      console.log('da : ', DEFAULT_DATE)
+      console.log('activeMonth xxx : ', activeMonth)
       return children({
         activeYear: activeYear,
         activeMonth: activeMonth,
@@ -567,11 +576,11 @@ export const CalendarHeader = memo(
 );
 
 export const WeekDayList = () => {
-  const { MONTH_LIST } = useCalendarContext();
+  const { MONTH_LIST, locale } = useCalendarContext();
   return (
     <Weekday>
       {MONTH_LIST?.map((month: any) => {
-        return <li key={month?.name}>{month.name}</li>;
+        return <li key={month.name}>{month?.[locale === "TH" ? 'nameTH' : 'name']}</li>;
       })}
     </Weekday>
   );
