@@ -38,6 +38,7 @@ export type CalendarProps = {
   onClick?: (date: any) => void;
   onDateChange?: (date: any) => void
   onSwipe?: (date: any) => void
+  calendayType?: "a"
 };
 
 export type CalendarControlButtonPropsChildrenProps = {
@@ -48,6 +49,9 @@ export type CalendarControlButtonPropsChildrenProps = {
   goNextWeek: () => void;
   goPreviousWeek: () => void;
   goPreviousMonth: () => void;
+  activeYear?: number;
+  activeMonth?: number;
+  activeDate?: number
 };
 
 export type CalendarControlButtonProps = {
@@ -56,6 +60,9 @@ export type CalendarControlButtonProps = {
     goToDay,
     changeCalendarType,
     calendarType,
+    activeYear,
+    activeMonth,
+    activeDate
   }: CalendarControlButtonPropsChildrenProps) => ReactNode;
 };
 
@@ -84,6 +91,7 @@ export type DateEventProps = {
   renderEvent?: ({ events }: { events?: Events[] }) => void;
   activeStyle?: React.CSSProperties;
   todayStyle?: React.CSSProperties;
+  dayContainerStyle?: React.CSSProperties
 };
 export type RenderDayProps = {
   date: number;
@@ -209,7 +217,7 @@ export default function Calendar({
   fixWeek,
   onClick,
   onDateChange,
-  onSwipe
+  onSwipe,
 }: CalendarProps) {
   // const FIX_WEEK = true;
 
@@ -494,6 +502,7 @@ export const CalendarControlButton = memo(
       calendarType,
       goNextWeek,
       goPreviousWeek,
+      activeDate, activeMonth, activeYear
     } = useCalendarContext();
 
     return (
@@ -507,6 +516,9 @@ export const CalendarControlButton = memo(
             calendarType: calendarType,
             goNextWeek: goNextWeek,
             goPreviousWeek: goPreviousWeek,
+            activeDate: activeDate,
+            activeMonth: activeMonth,
+            activeYear: activeYear
           })
         ) : (
           <>
@@ -649,7 +661,7 @@ const getBetweenDate = ({
 };
 
 export const DateEvent = memo(
-  ({ renderEvent, activeStyle }: DateEventProps) => {
+  ({ renderEvent, activeStyle, dayContainerStyle }: DateEventProps) => {
     const {
       renderDay,
       displayFullEvent,
@@ -670,6 +682,7 @@ export const DateEvent = memo(
       onSwipe
     } = useCalendarContext();
     const isFixWeek = fixWeek && calendarType === "week";
+    console.log('eventLists : ', eventLists)
 
     const renderDate = useMemo(() => {
       return renderDay.map(({ date, isToday, currentMonth, fullDate }: any) => {
@@ -696,7 +709,6 @@ export const DateEvent = memo(
           },
           []
         );
-        // console.log("removeDuplicateEvent : ", removeDuplicateEvent);
 
         return (
           <DayItem
@@ -718,7 +730,7 @@ export const DateEvent = memo(
             isCurrentMonth={currentMonth}
           >
             {!displayFullEvent || calendarType === "week" ? (
-              <DayContainer today={isToday} isActiveDate={isActiveItem}>
+              <DayContainer style={{ ...dayContainerStyle }} today={isToday} isActiveDate={isActiveItem}>
                 <TodayText>{date}</TodayText>
                 {isActiveItem && (
                   <ActiveItem
@@ -816,20 +828,7 @@ export const DateEvent = memo(
           </DayItem>
         );
       });
-    }, [
-      renderDay,
-      activeYear,
-      activeMonth,
-      activeDate,
-      displayFullEvent,
-      calendarType,
-      activeStyle,
-      isFixWeek,
-      eventLists,
-      setActiveDate,
-      onClick,
-      renderEvent,
-    ]);
+    }, [renderDay, activeYear, activeMonth, activeDate, eventLists, displayFullEvent, calendarType, dayContainerStyle, activeStyle, isFixWeek, setActiveDate, onClick, renderEvent]);
 
     const swipeConfidenceThreshold = 10000;
     const swipePower = (offset: number, velocity: number) => {
@@ -1033,6 +1032,7 @@ const DayContainer = styled.div<{
   min-width: 50%; */
   margin: 0 auto;
   ${getActiveDate};
+  /* gap : 8px; */
 
   /* min-width: 40%;
   max-width: 40%; */

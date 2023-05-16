@@ -1,85 +1,71 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import "./App.css";
 import Calendar, {
   CalendarControlButton,
   // CalendarControlButton,
-  CalendarHeader,
+  // CalendarHeader,
   CalendarWeekDay,
   DateEvent,
 } from "./components/Calendar";
 
 function App() {
-  const [, setDate] = useState();
+  const [currentDate, setDate] = useState<any>(new Date());
 
-  const MOCK = [1647936114893, 1647388800000, 1647561600000, 1647561600000];
+  const MOCK = [1682960400000, 1682874000000];
   const test = MOCK.map((date, index) => {
     return {
       id: index,
       startDate: new Date(date),
       endDate: new Date(date),
       title: "test",
+      status: "clockIn"
     };
   });
 
+
   return (
     <div className="App" style={{ margin: "0 auto", padding: "1rem" }}>
+      <button onClick={() => {
+        setDate(new Date(2023, 0, 3))
+      }}>go to jan</button>
       <Calendar
         type="month"
         locale="TH"
-        // currentDate={new Date(2022, 1, 10)}
+        currentDate={currentDate}
+
         // displayFullEvent={true}
         onClick={(date) => {
-          console.log("date :", date);
-          setDate(date);
+          setDate(new Date(date.activeYear, date.activeMonth, date.activeDate));
         }}
         onDateChange={(date) => {
           console.log('data : ', date)
         }}
         fixWeek
         // disableSwipe
-        eventLists={test}
+        eventLists={[...test, {
+          id: 9,
+          startDate: new Date(2023, 4, 7),
+          endDate: new Date(2023, 4, 7),
+          title: "test",
+          status: "clockIn"
+        }]}
       >
-        {/* <div
-          style={{
-            background:
-              "linear-gradient(251.44deg, #E1D7FF 0.75%, #FFF4DE 98.69%)",
-            padding: "0.5rem",
-            borderRadius: "12px",
+        <CalendarControlButton>
+          {({ goToDay, activeDate, activeMonth, activeYear }) => {
+            console.log('activeDate : ', activeDate, activeMonth, activeYear)
+            //@ts-ignore
+            const formatMonth = activeMonth === 0 ? 12 : activeMonth + 1 > 12 ? 1 : activeMonth + 1
+            console.log('formatMonth;;;', formatMonth)
+            return <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <p>{new Date(`${activeYear}/${formatMonth}/${1}`).toDateString()}</p>
+              <button onClick={() => {
+                goToDay()
+                // setDate(new Date(activeYear || new Date().getFullYear(), activeMonth || new Date().getMonth(), activeDate));
+              }}>go to day</button>
+            </div>
           }}
-        > */}
-        <CalendarControlButton />
-        <CalendarHeader>
-          {({ currentDate, goNextMonth, activeMonth, activeYear, goToDay }) => {
-            console.log("activeYear : ", activeYear);
-            console.log("activeMonth :", activeMonth);
-            return (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  paddingBottom: "1rem",
-                  alignItems: "start",
-                  textIndent: "1.25rem",
-                }}
-              >
-                <button onClick={() => goToDay()}>back</button>
-                <h3
-                  onClick={() => goNextMonth!()}
-                  style={{
-                    fontSize: "20px",
-                    color: "#3E4357",
-                    marginBottom: "0",
-                  }}
-                >
-                  {currentDate} {activeMonth} {activeYear}
-                </h3>
-                <h4 style={{ margin: "0", fontWeight: 400, color: "#6E7282" }}>
-                  ขอให้เป็นวันที่ดี 😆
-                </h4>
-              </div>
-            );
-          }}
-        </CalendarHeader>
+        </CalendarControlButton>
+
         <div
           style={{
             background: "white",
@@ -87,12 +73,25 @@ function App() {
           }}
         >
           <CalendarWeekDay />
-          <DateEvent />
+          <DateEvent
+            activeStyle={{ opacity: 0.8 }}
+            dayContainerStyle={{ gap: '8px', padding: '1px' }}
+            renderEvent={({ events }: any) => {
+              console.log('events : ', events)
+              return <Fragment key={events?.id}>
+                <div style={{ width: '8px', height: '8px', backgroundColor: 'green', position: 'absolute', top: '5%', right: '10%', borderRadius: '50%' }}>
+
+                </div>
+                <div style={{ height: '5px', width: '90%', background: 'red', margin: '0 auto', borderRadius: '10%', }} key={Math.random() * 99}>
+
+                </div>
+
+              </Fragment>
+            }}
+          />
         </div>
-        {/* </div> */}
-        {/* <CalendarControlButton /> */}
       </Calendar>
-    </div>
+    </div >
   );
 }
 
