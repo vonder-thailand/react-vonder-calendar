@@ -1,6 +1,6 @@
 {
   "name": "react-vonder-calendar",
-  "version": "1.2.5",
+  "version": "1.2.7",
   "author": "minnyppp",
   "description": "React Vonder Component with compound component pattern",
   "main": "./lib/cjs/components/Calendar.js",
