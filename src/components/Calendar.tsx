@@ -32,7 +32,7 @@ export type CalendarProps = {
   eventLists?: Events[];
   displayFullEvent?: boolean;
   type?: CalendarType;
-  locale?: "TH";
+  locale?: "TH" | "EN";
   disableSwipe?: boolean;
   fixWeek?: boolean;
   onClick?: (date: any) => void;
@@ -177,31 +177,31 @@ export function useCalendarContext() {
 
 const MONTH_LIST = [
   {
-    name: "Su",
+    name: "Sun",
     nameTH: "อา"
   },
   {
-    name: "Mo",
+    name: "Mon",
     nameTH: "จ"
   },
   {
-    name: "Tu",
+    name: "Tue",
     nameTH: "อ"
   },
   {
-    name: "We",
+    name: "Wed",
     nameTH: "พ"
   },
   {
-    name: "Th",
+    name: "Thu",
     nameTH: "พฤ"
   },
   {
-    name: "Fr",
+    name: "Fri",
     nameTH: "ศ"
   },
   {
-    name: "Sa",
+    name: "Sat",
     nameTH: "ส"
   },
 ];
@@ -912,13 +912,12 @@ export const DateEvent = memo(
 
 const ActiveItem = styled(motion.div)`
   position: absolute;
-
   background-color: #56a0ef;
   border-radius: 8px;
   /* width: 100%; */
   width: 36px;
   height: 36px;
-  left: 15%;
+  /* left: 15%; */
   /* min-height: 80%;
   max-height: 80%; */
   /* height: 55px; */
@@ -983,7 +982,7 @@ const getActiveDate = css`
         font-weight: 700;
         padding-bottom: ${"15px"};
         color: white;
-        padding: ${displayFullEvent ? "10px" : "0 1rem 1rem 1rem"};
+        padding: ${displayFullEvent ? "10px" : "0"};
       `;
     }
     if (today) {
@@ -991,7 +990,7 @@ const getActiveDate = css`
         padding-bottom: ${"15px"};
         font-weight: 700;
         color: #287fde;
-        padding: ${displayFullEvent ? "10px" : "0 1rem"};
+        padding: ${displayFullEvent ? "10px" : "0"};
       `;
     }
   }};
@@ -1003,7 +1002,7 @@ const TodayText = styled.span<{
   displayFullEvent?: boolean;
 }>`
   margin: 0 auto;
-  width: fit-content;
+  width: 36px;
   padding-top: 7px;
   z-index: 20;
   ${({ displayFullEvent, isActiveDate, today }) => {
@@ -1018,6 +1017,7 @@ const TodayText = styled.span<{
       `;
     }
   }}
+  position:relative;
   ${getActiveDate};
 `;
 
@@ -1029,6 +1029,8 @@ const DayContainer = styled.div<{
   flex-direction: column;
   /* min-height: 40px; */
   /* max-width: 30%; */
+  position: relative;
+  width : 36px;
   /* position: relative; */
 
   /* 

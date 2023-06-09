@@ -33,7 +33,7 @@ function App() {
       </div>
       <Calendar
         type="month"
-        locale="TH"
+        locale="EN"
         currentDate={currentDate}
 
         // displayFullEvent={true}
