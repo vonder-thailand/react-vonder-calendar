@@ -915,11 +915,14 @@ const ActiveItem = styled(motion.div)`
 
   background-color: #56a0ef;
   border-radius: 8px;
-  width: 100%;
-  min-height: 80%;
-  max-height: 80%;
+  /* width: 100%; */
+  width: 36px;
+  height: 36px;
+  left: 15%;
+  /* min-height: 80%;
+  max-height: 80%; */
   /* height: 55px; */
-  left: 0%;
+  /* left: 0%; */
   top: 0%;
 `;
 
@@ -937,7 +940,7 @@ const ActiveItemFullEvent = styled(motion.div)`
 
 const Weekday = styled.ul`
   margin: 0;
-  padding: 10px 0;
+  padding: 10px 0 0px 0px;
   li {
     display: inline-block;
     width: 13.6%;
@@ -1001,7 +1004,7 @@ const TodayText = styled.span<{
 }>`
   margin: 0 auto;
   width: fit-content;
-  padding-top: 10px;
+  padding-top: 7px;
   z-index: 20;
   ${({ displayFullEvent, isActiveDate, today }) => {
     if (displayFullEvent && !isActiveDate && !today) {
@@ -1024,7 +1027,7 @@ const DayContainer = styled.div<{
 }>`
   display: flex;
   flex-direction: column;
-  min-height: 40px;
+  /* min-height: 40px; */
   /* max-width: 30%; */
   /* position: relative; */
 
@@ -1039,7 +1042,7 @@ const DayContainer = styled.div<{
 `;
 
 const DayItem = styled.div<{ isCurrentMonth?: boolean }>`
-  min-height: 70px;
+  min-height: 40px;
   list-style-type: none;
   display: inline-block;
   width: 13.6%;
@@ -1059,7 +1062,7 @@ const EventBadge = styled.div<{ isToday?: boolean; isActiveDate?: boolean }>`
     (isToday && isActiveDate) || isActiveDate ? "white" : "#f0685b"};
   border-radius: 50%;
   margin: 0 auto;
-  margin-top: 0.5rem;
+  margin-top: 0.2rem;
   z-index: 20;
 `;
 
